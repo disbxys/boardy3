@@ -3,7 +3,7 @@ from typing import List
 
 from PyQt6.QtCore import pyqtSignal, QThread
 
-from database_manager import DatabaseManager, DatabaseItemExists
+from components.database_manager import DatabaseManager, DatabaseItemExists
 from models import Image
 
 

@@ -19,10 +19,10 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
+from components.database_manager import DatabaseItemExists, DatabaseManager
 from components.image_loader import ImageLoader
 from components.layouts import FlowLayout
 from components.searchbox import SearchBox
-from database_manager import DatabaseItemExists, DatabaseManager
 
 
 class MainWindow(QMainWindow):
