@@ -21,17 +21,18 @@ class DatabaseItemExists(DatabaseException):
     """
 
 
-
 class DatabaseManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self.engine = create_engine("sqlite:///image_database.db", echo=False)
         Base.metadata.create_all(self.engine)
         self.session = Session(self.engine)
 
-        self.image_dir_path = os.path.join(os.getcwd(), "db", "image_files")
+        self.image_dir_path = os.path.join(
+            os.getcwd(), "db", "image_files"
+        )
 
     
-    def add_image(self, filepath, tags=None):
+    def add_image(self, filepath: str, tags=None) -> None:
         # Calculate file hash to use as new filename
         image_hash = self._sha256_hash_image_data(filepath)
         
@@ -65,7 +66,10 @@ class DatabaseManager:
 
         if not tags: tags = list()
         for tag_name in tags:
-            tag = self.session.query(Tag).filter_by(name=tag_name).first()
+            tag = self.session\
+                .query(Tag)\
+                .filter_by(name=tag_name)\
+                .first()
 
             if not tag:
                 tag = Tag(name=tag_name)
@@ -93,7 +97,10 @@ class DatabaseManager:
 
     def search_images(self, tags_list: List[str]) -> List[Image]:
         # Filter out invalid tags
-        tags = self.session.query(Tag).filter(Tag.name.in_(tags_list)).all()
+        tags = self.session\
+            .query(Tag)\
+            .filter(Tag.name.in_(tags_list))\
+            .all()
 
         if (len(tags_list) != 0) and (len(tags) == 0):
             # Non-empty tags list and no valid tags where found
@@ -106,7 +113,8 @@ class DatabaseManager:
             # apparently doesn't like it when there are joins without a WITH
             # clause.
             if len(tags) != 0:
-                query = query.join(image_tag, image_tag.c.image_id == Image.id)\
+                query = query\
+                    .join(image_tag, image_tag.c.image_id == Image.id)\
                     .join(Tag, Tag.id == image_tag.c.tag_id)
 
             # Add an AND = clause for each tag

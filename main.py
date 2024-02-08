@@ -21,7 +21,7 @@ from components.searchbox import SearchBox
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, db_manager: DatabaseManager):
+    def __init__(self, db_manager: DatabaseManager) -> None:
         super().__init__()
 
         self.db_manager = db_manager
@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         self.refresh_images()
 
     
-    def upload_images(self):
+    def upload_images(self) -> None:
         file_dialogue = QFileDialog()
         file_paths, _ = file_dialogue.getOpenFileNames(
             self,
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
             self.refresh_images()
         
     
-    def search_images(self):
+    def search_images(self) -> None:
         tags_string = self.searchbox.search_line_edit.text().strip()
         image_results = self.db_manager.search_images(tags_string.split())
         
@@ -109,10 +109,8 @@ class MainWindow(QMainWindow):
         for image in image_results:
             self._add_image_to_layout(image.filename)
 
-        print(self.images_layout.count())
-
     
-    def refresh_images(self):
+    def refresh_images(self) -> None:
         # Clear existing widgets from layout
         self.clear_images_layout()
 
@@ -123,10 +121,11 @@ class MainWindow(QMainWindow):
             self._add_image_to_layout(image.filename)
     
 
-    def clear_images_layout(self):
+    def clear_images_layout(self) -> None:
         for i in reversed(range(self.images_layout.count())):
-            widget = self.images_layout.itemAt(i).widget()
+            widget = self.images_layout.itemAt(i)
             if widget:
+                widget = widget.widget()
                 widget.setParent(None)
 
     

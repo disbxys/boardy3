@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 )
 
 class SearchBox(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.search_line_edit = QLineEdit()
@@ -18,5 +18,3 @@ class SearchBox(QWidget):
 
 
         self.setLayout(layout)
-
-        # TODO: implement search by tag

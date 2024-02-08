@@ -9,7 +9,11 @@ class ImageLoader(QThread):
     progress_updated = pyqtSignal(int)
     finished = pyqtSignal()
 
-    def __init__(self, db_manager: DatabaseManager, file_paths: List[str]):
+    def __init__(
+            self,
+            db_manager: DatabaseManager,
+            file_paths: List[str]
+    ) -> None:
         super().__init__()
         self.db_manager = db_manager
         self.file_paths = file_paths

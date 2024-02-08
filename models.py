@@ -1,8 +1,6 @@
-# from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import declarative_base, relationship
 
-# db = SQLAlchemy()
 
 Base = declarative_base()
 
