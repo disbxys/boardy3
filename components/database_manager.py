@@ -1,11 +1,10 @@
-from fileinput import filename
 import hashlib
 import os
 import shutil
-from typing import List, Optional, Sequence
+from typing import List, Optional
 
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table
-from sqlalchemy.orm import declarative_base, relationship, Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 from models import Base, Image, image_tag, Tag
 

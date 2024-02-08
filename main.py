@@ -1,25 +1,20 @@
-import logging
 import sys
 
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
-    QGridLayout,
     QLabel,
-    QLineEdit,
     QMainWindow,
-    QProgressBar,
     QProgressDialog,
     QPushButton,
     QScrollArea,
-    QScrollBar,
     QVBoxLayout,
     QWidget
 )
 
-from components.database_manager import DatabaseItemExists, DatabaseManager
+from components.database_manager import DatabaseManager
 from components.image_loader import ImageLoader
 from components.layouts import FlowLayout
 from components.searchbox import SearchBox
