@@ -18,6 +18,7 @@ from components.database_manager import DatabaseManager
 from components.image_loader import ImageLoader
 from components.layouts import FlowLayout
 from components.searchbox import SearchBox
+from components.toolbar import ToolBar
 
 
 class MainWindow(QMainWindow):
@@ -31,6 +32,7 @@ class MainWindow(QMainWindow):
 
         self.central_widget = QWidget()
 
+        # Define an area to display images
         self.scroll_area = QScrollArea(self.central_widget)
         self.scroll_widget = QWidget(self.scroll_area)
         self.images_layout = FlowLayout(self.scroll_widget)
@@ -38,12 +40,16 @@ class MainWindow(QMainWindow):
         upload_images_button = QPushButton("Upload Images", self)
         upload_images_button.clicked.connect(self.upload_images)
 
+        self.toolbar = ToolBar(db_manager)
+        self.toolbar.page_updated.connect(self.refresh_images)
+
         self.searchbox = SearchBox()
         self.searchbox.search_button.clicked.connect(self.search_images)
         # TODO: Remove this line after tagging is properly implemented
         self.searchbox.setEnabled(False)
 
         layout = QVBoxLayout()
+        layout.addWidget(self.toolbar)
         layout.addWidget(self.searchbox)
         layout.addWidget(self.scroll_area)
         layout.addWidget(upload_images_button)
@@ -115,7 +121,9 @@ class MainWindow(QMainWindow):
         self.clear_images_layout()
 
         # Re-populate images layout with update list of images
-        images = self.db_manager.get_all_images(newest_first=True)
+        # The empty list is there as a janky fix until I find a
+        # better solution.
+        images = self.db_manager.search_images(list(), self.toolbar.current_page)
 
         for image in images:
             self._add_image_to_layout(image.filename)

@@ -22,6 +22,8 @@ class DatabaseItemExists(DatabaseException):
 
 
 class DatabaseManager:
+    DEFAULT_PAGE_SIZE = 20
+
     def __init__(self) -> None:
         self.engine = create_engine("sqlite:///image_database.db", echo=False)
         Base.metadata.create_all(self.engine)
@@ -100,7 +102,7 @@ class DatabaseManager:
         return self.session.query(Image).count()
 
 
-    def search_images(self, tags_list: List[str]) -> List[Image]:
+    def search_images(self, tags_list: List[str], page: int) -> List[Image]:
         # Filter out invalid tags
         tags = self.session\
             .query(Tag)\
@@ -126,7 +128,14 @@ class DatabaseManager:
             for tag in tags:
                 query = query.filter(Tag.name == tag.name)
 
-        return query.order_by(Image.id.desc()).all()
+
+        # Calculate offset based on page number
+        offset = (page - 1) * self.DEFAULT_PAGE_SIZE
+
+        return query\
+            .order_by(Image.id.desc())\
+            .offset(offset).limit(self.DEFAULT_PAGE_SIZE)\
+            .all()
     
 
     def get_image_path(self, filename: str) -> str:
