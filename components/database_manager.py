@@ -93,6 +93,11 @@ class DatabaseManager:
             query = query.order_by(Image.id)
 
         return query.all()
+    
+
+    def get_images_count(self) -> int:
+        """Return the number of image records in the database."""
+        return self.session.query(Image).count()
 
 
     def search_images(self, tags_list: List[str]) -> List[Image]:
