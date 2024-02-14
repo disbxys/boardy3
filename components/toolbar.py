@@ -23,7 +23,7 @@ class ToolBar(QWidget):
         self.current_page = 1
 
         # Previous Page Action
-        prev_page_action = QAction("Previous Page", self)
+        prev_page_action = QAction("<", self)
         prev_page_action.triggered.connect(self.load_previous_page)
         self.toolbar.addAction(prev_page_action)
 
@@ -33,7 +33,7 @@ class ToolBar(QWidget):
         self.toolbar.addWidget(self.page_label)
 
         # Next Page Action
-        next_page_action = QAction("Next Page", self)
+        next_page_action = QAction(">", self)
         next_page_action.triggered.connect(self.load_next_page)
         self.toolbar.addAction(next_page_action)
 
