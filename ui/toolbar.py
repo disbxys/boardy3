@@ -13,7 +13,7 @@ from database.database_manager import DatabaseManager
 class ToolBar(QWidget):
     page_updated = pyqtSignal()
 
-    def __init__(self, db_manager: DatabaseManager):
+    def __init__(self, db_manager: DatabaseManager) -> None:
         super().__init__()
 
         self.db_manager = db_manager
@@ -43,11 +43,11 @@ class ToolBar(QWidget):
         self.setLayout(layout)
 
 
-    def update_page_label(self):
+    def update_page_label(self) -> None:
         self.page_label.setText(f"Page {self.current_page}")
 
     
-    def load_previous_page(self):
+    def load_previous_page(self) -> None:
         if self.current_page > 1:
             self.current_page -= 1
 
@@ -56,7 +56,7 @@ class ToolBar(QWidget):
             self.update_page_label()
 
 
-    def load_next_page(self):
+    def load_next_page(self) -> None:
         # Check if there are more pages
         more_pages = len(self.db_manager.search_images(list(), self.current_page+1)) > 0
 
@@ -68,7 +68,7 @@ class ToolBar(QWidget):
             self.update_page_label()
 
 
-    def reset_page(self):
+    def reset_page(self) -> None:
         self.current_page = 1
 
         self.page_updated.emit()

@@ -19,7 +19,7 @@ class ImageLoader(QThread):
         self.file_paths = file_paths
 
     
-    def run(self):
+    def run(self) -> None:
         total_files = len(self.file_paths)
         for i, file_path in enumerate(self.file_paths):
             try:
