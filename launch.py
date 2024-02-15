@@ -107,7 +107,12 @@ class MainWindow(QMainWindow):
     
     def search_images(self) -> None:
         tags_string = self.searchbox.search_line_edit.text().strip()
-        image_results = self.db_manager.search_images(tags_string.split())
+        image_results = self.db_manager.search_images(tags_string.split(),
+            page=1
+        )
+
+        # Reset page back to 1
+        self.toolbar.reset_page()
         
         # Clear existing widgets from layout
         self.clear_images_layout()

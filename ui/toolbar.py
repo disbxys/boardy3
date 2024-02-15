@@ -66,3 +66,11 @@ class ToolBar(QWidget):
             self.page_updated.emit()
 
             self.update_page_label()
+
+
+    def reset_page(self):
+        self.current_page = 1
+
+        self.page_updated.emit()
+
+        self.update_page_label()
