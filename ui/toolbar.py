@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
-from components.database_manager import DatabaseManager
+from database.database_manager import DatabaseManager
 
 
 class ToolBar(QWidget):

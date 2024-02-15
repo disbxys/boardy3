@@ -6,7 +6,7 @@ from typing import List, Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from models import Base, Image, image_tag, Tag
+from database.models import Base, Image, image_tag, Tag
 
 
 class DatabaseException(Exception):

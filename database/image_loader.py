@@ -2,7 +2,7 @@ from typing import List
 
 from PyQt6.QtCore import pyqtSignal, QThread
 
-from components.database_manager import DatabaseManager, DatabaseItemExists
+from database.database_manager import DatabaseManager, DatabaseItemExists
 
 
 class ImageLoader(QThread):

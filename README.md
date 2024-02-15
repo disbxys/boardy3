@@ -9,7 +9,7 @@ SQLAlchemy
 ```
 
 ## How to Run
-This program can simply be run by running ```main.py```.
+This program can simply be run by running ```launch.py```.
 
 ## Supported Media Formats
 Boardy3 currently only supports a limited number of image formats:

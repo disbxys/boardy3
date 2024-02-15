@@ -14,11 +14,11 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
-from components.database_manager import DatabaseManager
-from components.image_loader import ImageLoader
-from components.layouts import FlowLayout
-from components.searchbox import SearchBox
-from components.toolbar import ToolBar
+from database.database_manager import DatabaseManager
+from database.image_loader import ImageLoader
+from ui.layouts import FlowLayout
+from ui.searchbox import SearchBox
+from ui.toolbar import ToolBar
 
 
 class MainWindow(QMainWindow):
