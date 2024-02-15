@@ -3,7 +3,7 @@ import os
 import shutil
 from typing import List, Optional
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column
 from sqlalchemy.orm import Session
 
 from database.models import Base, Image, image_tag, Tag
@@ -138,7 +138,8 @@ class DatabaseManager:
             .all()
     
 
-    def get_image_path(self, filename: str) -> str:
+    def get_image_path(self, filename: str | Column[str]) -> str:
+        filename = str(filename)
         return os.path.normpath(os.path.join(
             self._get_image_dir(filename),
             filename

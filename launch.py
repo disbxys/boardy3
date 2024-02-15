@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget
 )
+from sqlalchemy import Column
 
 from database.database_manager import DatabaseManager
 from database.image_loader import ImageLoader
@@ -137,12 +138,12 @@ class MainWindow(QMainWindow):
                 widget.setParent(None)
 
     
-    def _add_image_to_layout(self, filename: str) -> None:
+    def _add_image_to_layout(self, filename: str | Column[str]) -> None:
         image_widget = self._create_image_widget(filename)
         self.images_layout.addWidget(image_widget)
     
 
-    def _create_image_widget(self, filename: str) -> QWidget:
+    def _create_image_widget(self, filename: str | Column[str]) -> QWidget:
         image_widget = QLabel(self)
         image_path = self.db_manager.get_image_path(filename)
         pixmap = QPixmap(image_path)
