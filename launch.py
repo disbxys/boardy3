@@ -102,7 +102,9 @@ class MainWindow(QMainWindow):
             # Display the progress dialog
             progress_dialog.exec()
 
-            self.refresh_images()
+            # Reset page back to 1
+            # This should trigger a page refresh
+            self.toolbar.reset_page()
         
     
     def search_images(self) -> None:
