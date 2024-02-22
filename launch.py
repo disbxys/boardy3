@@ -1,14 +1,12 @@
 import sys
 
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 
 from database.database_manager import DatabaseManager
 from ui.main_window import MainWindow
 
 
-
-if __name__ == "__main__":
+def launch_app():
     app = QApplication(sys.argv)
 
     db_manager = DatabaseManager()
@@ -16,3 +14,7 @@ if __name__ == "__main__":
     main_win.show()
 
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    launch_app()
