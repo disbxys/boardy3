@@ -5,8 +5,11 @@ Boardy3 is an alternative version of [Boardy2](https://github.com/disbxys/boardy
 ```
 Python
 PyQt6
+python-magic
 SQLAlchemy
 ```
+
+*You might need to also install `python-magic-bin` if running on windows.*
 
 ## How to Run
 This program can simply be run by running `launch.py`.
