@@ -29,6 +29,10 @@ class ImageLoader(QThread):
             except DatabaseItemExists:
                 # Skip items that already exist in the database
                 pass
+            except UnicodeDecodeError:
+                # Skip bad files
+                # This should come from the python magic lib
+                pass
 
             # Update progress
             self.progress_updated.emit(int((i + 1) / total_files * 100))
@@ -37,5 +41,6 @@ class ImageLoader(QThread):
 
 
 def is_image(file_path: str) -> bool:
+    print(file_path)
     mtype = magic.from_file(file_path, mime=True)
     return mtype.startswith("image/")
