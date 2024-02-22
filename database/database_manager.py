@@ -25,8 +25,13 @@ class DatabaseManager:
     DEFAULT_PAGE_SIZE = 20
 
     def __init__(self) -> None:
-        self.engine = create_engine("sqlite:///instance/image_database.db", echo=False)
+        db_instance_dirpath = "instance"
+        os.makedirs(db_instance_dirpath, exist_ok=True)
+
+        self.engine = create_engine(f"sqlite:///{db_instance_dirpath}/image_database.db", echo=False)
+
         Base.metadata.create_all(self.engine)
+
         self.session = Session(self.engine)
 
         self.image_dir_path = os.path.join(

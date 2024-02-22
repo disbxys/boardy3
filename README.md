@@ -12,11 +12,16 @@ SQLAlchemy
 This program can simply be run by running `launch.py`.
 
 ## Supported Media Formats
-Boardy3 currently only supports a limited number of image formats:
+Boardy3 by default supports the following image formats:
 - bmp
-- jpg/jpeg
+- jpeg/jpg
 - gif
 - png
+- webp
+
+Most other image formats are also supported. If you cannot find the image you're looking for, try changing the file filter from **Image Files** to **All Files (*)**.
+
+![Changing the file filter](static/images/file_filter_demo.png)
 
 ## Migrating to Boardy2
 If you want switch to hosting your media on a web app, you can migrate your data to [Boardy2](https://github.com/disbxys/boardy2).

@@ -1,5 +1,6 @@
 from typing import List
 
+import magic
 from PyQt6.QtCore import pyqtSignal, QThread
 
 from database.database_manager import DatabaseManager, DatabaseItemExists
@@ -23,7 +24,8 @@ class ImageLoader(QThread):
         total_files = len(self.file_paths)
         for i, file_path in enumerate(self.file_paths):
             try:
-                self.db_manager.add_image(file_path, tags=["general"])
+                if is_image(file_path):
+                    self.db_manager.add_image(file_path, tags=["general"])
             except DatabaseItemExists:
                 # Skip items that already exist in the database
                 pass
@@ -32,3 +34,8 @@ class ImageLoader(QThread):
             self.progress_updated.emit(int((i + 1) / total_files * 100))
 
         self.finished.emit()
+
+
+def is_image(file_path: str) -> bool:
+    mtype = magic.from_file(file_path, mime=True)
+    return mtype.startswith("image/")
