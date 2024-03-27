@@ -51,3 +51,8 @@ A: The reason is ultimately due to how flask operates sqlalchemy. I would have t
 
 Q: Which do you recommend I use?\
 A: If you want to host your images on your local network, then go with Boardy2. If you want to only have it on your computer, then use Boardy3. Ultimately, <strong>the choice is your's</strong>.
+
+
+## Related Projects
+
+- [Boardy2](https://github.com/disbxys/boardy2) (flask alternative version)
