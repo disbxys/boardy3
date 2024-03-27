@@ -1,3 +1,4 @@
+from typing import Sequence
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
@@ -15,6 +16,7 @@ from sqlalchemy import Column
 
 from database.database_manager import DatabaseManager
 from database.image_loader import ImageLoader
+import database.models as db_models
 from ui.layouts import FlowLayout
 from ui.searchbox import SearchBox
 from ui.toolbar import ToolBar
@@ -92,6 +94,11 @@ class MainWindow(QMainWindow):
             image_loader = ImageLoader(self.db_manager, file_paths)
             image_loader.progress_updated.connect(progress_dialog.setValue)
             image_loader.finished.connect(progress_dialog.accept)
+
+            # Hide the cancel button (until I can find a better way
+            # to handle safely exiting the image loader thread)
+            # (2024-03-27)
+            # progress_dialog.findChildren(QPushButton)[0].hide()
             progress_dialog.canceled.connect(image_loader.terminate)    # The cancel button doesn't really work
 
             # Start the ImageLoader thread
@@ -118,8 +125,7 @@ class MainWindow(QMainWindow):
         self.clear_images_layout()
 
         # Re-populate images layout with update list of images
-        for image in image_results:
-            self._add_image_to_layout(image.filename)
+        self._add_images_to_layout(image_results)
 
     
     def refresh_images(self) -> None:
@@ -128,11 +134,10 @@ class MainWindow(QMainWindow):
 
         # Re-populate images layout with update list of images
         # The empty list is there as a janky fix until I find a
-        # better solution.
+        # better solution (2024-02-08).
         images = self.db_manager.search_images(list(), self.toolbar.current_page)
 
-        for image in images:
-            self._add_image_to_layout(image.filename)
+        self._add_images_to_layout(images)
     
 
     def clear_images_layout(self) -> None:
@@ -143,9 +148,14 @@ class MainWindow(QMainWindow):
                 widget.setParent(None)
 
     
-    def _add_image_to_layout(self, filename: str | Column[str]) -> None:
-        image_widget = self._create_image_widget(filename)
+    def _add_image_to_layout(self, image: db_models.Image) -> None:
+        image_widget = self._create_image_widget(image.filename)
         self.images_layout.addWidget(image_widget)
+
+
+    def _add_images_to_layout(self, images: Sequence[db_models.Image]) -> None:
+        for image in images:
+            self._add_image_to_layout(image)
     
 
     def _create_image_widget(self, filename: str | Column[str]) -> QWidget:
