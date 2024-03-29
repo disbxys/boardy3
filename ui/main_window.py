@@ -1,3 +1,4 @@
+import os
 from typing import Sequence
 
 from PyQt6.QtCore import Qt
@@ -15,7 +16,7 @@ from PyQt6.QtWidgets import (
 from sqlalchemy import Column
 
 from database.database_manager import DatabaseManager
-from database.image_loader import ImageLoader
+from database.image_loader import ImageLoader, DirImageLoader
 import database.models as db_models
 from ui.layouts import FlowLayout
 from ui.searchbox import SearchBox
@@ -38,8 +39,13 @@ class MainWindow(QMainWindow):
         self.scroll_widget = QWidget(self.scroll_area)
         self.images_layout = FlowLayout(self.scroll_widget)
 
+        # Button for importing multiple images
         upload_images_button = QPushButton("Upload Images", self)
         upload_images_button.clicked.connect(self.upload_images)
+
+        # Button for recursively importing images from a selected directory
+        upload_image_dir_button = QPushButton("Upload Folder (Recursive)", self)
+        upload_image_dir_button.clicked.connect(self.upload_images_from_dir)
 
         self.toolbar = ToolBar(db_manager)
         self.toolbar.page_updated.connect(self.refresh_images)
@@ -54,6 +60,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.searchbox)
         layout.addWidget(self.scroll_area)
         layout.addWidget(upload_images_button)
+        layout.addWidget(upload_image_dir_button)
 
         # central_widget = QWidget()
         self.central_widget.setLayout(layout)
@@ -110,6 +117,47 @@ class MainWindow(QMainWindow):
             # Reset page back to 1
             # This should trigger a page refresh
             self.toolbar.reset_page()
+
+    
+    def upload_images_from_dir(self) -> None:
+        dir_dialogue = QFileDialog()
+        dir_path = dir_dialogue.getExistingDirectory(
+            self,
+            "Open Folder",
+            ""
+        )
+
+        if os.path.exists(dir_path):
+            # Create a progress dialog to show the progress of image loading
+            progress_dialog = QProgressDialog(
+                "Uploading Images...", "Cancel",
+                1, 1
+            )
+            progress_dialog.setWindowTitle("Uploading Images")
+            progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+            progress_dialog.setAutoClose(True)
+
+            # Create an ImageLoader thread and connect signals
+            image_loader = DirImageLoader(self.db_manager, dir_path)
+            # image_loader.progress_updated.connect(progress_dialog.setValue)
+            image_loader.finished.connect(progress_dialog.accept)
+
+            # Hide the cancel button (until I can find a better way
+            # to handle safely exiting the image loader thread)
+            # (2024-03-27)
+            # progress_dialog.findChildren(QPushButton)[0].hide()
+            progress_dialog.canceled.connect(image_loader.terminate)    # The cancel button doesn't really work
+
+            # Start the ImageLoader thread
+            image_loader.start()
+
+            # Display the progress dialog
+            progress_dialog.exec()
+
+            # Reset page back to 1
+            # This should trigger a page refresh
+            self.toolbar.reset_page()
+
         
     
     def search_images(self) -> None:
