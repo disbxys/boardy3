@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
         self.db_manager = db_manager
 
         self.setWindowTitle("Image Viewer")
-        self.setGeometry(100, 100, 800, 800)
+        self.setGeometry(100, 100, 800, 600)
 
         self.central_widget = QWidget()
 

@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 import magic
 from PyQt6.QtCore import pyqtSignal, QThread
@@ -14,7 +13,7 @@ class ImageLoader(QThread):
     def __init__(
             self,
             db_manager: DatabaseManager,
-            file_paths: List[str]
+            file_paths: list[str]
     ) -> None:
         super().__init__()
         self.db_manager = db_manager
