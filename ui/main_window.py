@@ -40,11 +40,11 @@ class MainWindow(QMainWindow):
         self.images_layout = FlowLayout(self.scroll_widget)
 
         # Button for importing multiple images
-        upload_images_button = QPushButton("Upload Images", self)
+        upload_images_button = QPushButton("Import Images", self)
         upload_images_button.clicked.connect(self.upload_images)
 
         # Button for recursively importing images from a selected directory
-        upload_image_dir_button = QPushButton("Upload Folder (Recursive)", self)
+        upload_image_dir_button = QPushButton("Import Folder (Recursive)", self)
         upload_image_dir_button.clicked.connect(self.upload_images_from_dir)
 
         self.toolbar = ToolBar(db_manager)
@@ -90,10 +90,10 @@ class MainWindow(QMainWindow):
         if file_paths:
             # Create a progress dialog to show the progress of image loading
             progress_dialog = QProgressDialog(
-                "Uploading Images...", "Cancel",
+                "Importing Images...", "Cancel",
                 0, len(file_paths)
             )
-            progress_dialog.setWindowTitle("Uploading Images")
+            progress_dialog.setWindowTitle("Importing Images")
             progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
             progress_dialog.setAutoClose(True)
 
@@ -130,10 +130,10 @@ class MainWindow(QMainWindow):
         if os.path.exists(dir_path):
             # Create a progress dialog to show the progress of image loading
             progress_dialog = QProgressDialog(
-                "Uploading Images...", "Cancel",
+                "Importing Images...", "Cancel",
                 0, 1
             )
-            progress_dialog.setWindowTitle("Uploading Images")
+            progress_dialog.setWindowTitle("Importing Images")
             progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
             progress_dialog.setAutoClose(True)
 
