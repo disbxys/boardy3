@@ -1,7 +1,7 @@
 import hashlib
 import os
 import shutil
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import create_engine, Column
 from sqlalchemy.orm import Session
@@ -92,7 +92,7 @@ class DatabaseManager:
         return Image.query.filter_by(id=id).first()
 
 
-    def get_all_images(self, newest_first: bool = False) -> List[Image]:
+    def get_all_images(self, newest_first: bool = False) -> list[Image]:
         query = self.session.query(Image)
         if newest_first:
             query = query.order_by(Image.id.desc())
@@ -107,12 +107,22 @@ class DatabaseManager:
         return self.session.query(Image).count()
 
 
-    def search_images(self, tags_list: List[str], page: int) -> List[Image]:
+    def search_images(
+            self,
+            tags_list: list[str],
+            page: int,
+            page_size: int = DEFAULT_PAGE_SIZE
+    ) -> list[Image]:
         # Filter out invalid tags
         tags = self.session\
             .query(Tag)\
             .filter(Tag.name.in_(tags_list))\
             .all()
+        
+        # Set page size to default size if page size is not
+        # a positive non-zero int.
+        if page_size <= 0:
+            page_size = self.DEFAULT_PAGE_SIZE
 
         if (len(tags_list) != 0) and (len(tags) == 0):
             # Non-empty tags list and no valid tags where found
@@ -135,11 +145,11 @@ class DatabaseManager:
 
 
         # Calculate offset based on page number
-        offset = (page - 1) * self.DEFAULT_PAGE_SIZE
+        offset = (page - 1) * page_size
 
         return query\
             .order_by(Image.id.desc())\
-            .offset(offset).limit(self.DEFAULT_PAGE_SIZE)\
+            .offset(offset).limit(page_size)\
             .all()
     
 

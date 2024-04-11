@@ -159,11 +159,12 @@ class MainWindow(QMainWindow):
             self.toolbar.reset_page()
 
         
-    
     def search_images(self) -> None:
         tags_string = self.searchbox.search_line_edit.text().strip()
-        image_results = self.db_manager.search_images(tags_string.split(),
-            page=1
+        image_results = self.db_manager.search_images(
+            tags_string.split(),
+            page=1,
+            page_size=int(self.toolbar.page_size_combo_box.currentText())
         )
 
         # Reset page back to 1
@@ -183,7 +184,11 @@ class MainWindow(QMainWindow):
         # Re-populate images layout with update list of images
         # The empty list is there as a janky fix until I find a
         # better solution (2024-02-08).
-        images = self.db_manager.search_images(list(), self.toolbar.current_page)
+        images = self.db_manager.search_images(
+            list(),
+            self.toolbar.current_page,
+            int(self.toolbar.page_size_combo_box.currentText())
+        )
 
         self._add_images_to_layout(images)
     
