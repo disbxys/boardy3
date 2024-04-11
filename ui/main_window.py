@@ -131,25 +131,27 @@ class MainWindow(QMainWindow):
             # Create a progress dialog to show the progress of image loading
             progress_dialog = QProgressDialog(
                 "Uploading Images...", "Cancel",
-                1, 1
+                0, 1
             )
             progress_dialog.setWindowTitle("Uploading Images")
             progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
             progress_dialog.setAutoClose(True)
 
-            # Create an ImageLoader thread and connect signals
-            image_loader = DirImageLoader(self.db_manager, dir_path)
-            # image_loader.progress_updated.connect(progress_dialog.setValue)
-            image_loader.finished.connect(progress_dialog.accept)
+            # Create an DirImageLoader thread and connect signals
+            dir_image_loader = DirImageLoader(self.db_manager, dir_path)
+            dir_image_loader.progress_updated.connect(progress_dialog.setValue)
+            dir_image_loader.finished.connect(progress_dialog.accept)
+            # Change max value in progress dialog
+            dir_image_loader.scan_completed.connect(progress_dialog.setMaximum)
 
             # Hide the cancel button (until I can find a better way
             # to handle safely exiting the image loader thread)
             # (2024-03-27)
             # progress_dialog.findChildren(QPushButton)[0].hide()
-            progress_dialog.canceled.connect(image_loader.terminate)    # The cancel button doesn't really work
+            progress_dialog.canceled.connect(dir_image_loader.terminate)    # The cancel button doesn't really work
 
             # Start the ImageLoader thread
-            image_loader.start()
+            dir_image_loader.start()
 
             # Display the progress dialog
             progress_dialog.exec()
