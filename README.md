@@ -2,7 +2,7 @@
 Boardy3 is an alternative version of [Boardy2](https://github.com/disbxys/boardy2) that uses PyQt6 as the primary framework to display your images in a gallery.
 
 ## Todo:
-- [ ] Open window with enlarged photo of image when clicked.
+- [X] Open window with enlarged photo of image when clicked.
 - [ ] Tagging system
 - [ ] Fix cancel button during import
 

@@ -2,8 +2,9 @@ import os
 from typing import Sequence
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QCloseEvent, QPixmap
 from PyQt6.QtWidgets import (
+    QApplication,
     QFileDialog,
     QLabel,
     QMainWindow,
@@ -18,6 +19,7 @@ from sqlalchemy import Column
 from database.database_manager import DatabaseManager
 from database.image_loader import ImageLoader, DirImageLoader
 import database.models as db_models
+from ui.image import ImageWidget
 from ui.layouts import FlowLayout
 from ui.searchbox import SearchBox
 from ui.toolbar import ToolBar
@@ -204,7 +206,7 @@ class MainWindow(QMainWindow):
 
     
     def _add_image_to_layout(self, image: db_models.Image) -> None:
-        image_widget = self._create_image_widget(image.filename)
+        image_widget = self._create_image_widget(image.id, image.filename)
         self.images_layout.addWidget(image_widget)
 
 
@@ -213,15 +215,16 @@ class MainWindow(QMainWindow):
             self._add_image_to_layout(image)
     
 
-    def _create_image_widget(self, filename: str | Column[str]) -> QWidget:
-        image_widget = QLabel(self)
-        image_path = self.db_manager.get_image_path(filename)
-        pixmap = QPixmap(image_path)
+    def _create_image_widget(
+            self,
+            db_id: int | Column[int],
+            filename: str | Column[str]
+    ) -> ImageWidget:
+        image_path = self.db_manager.get_image_path(filename)        
 
-        image_widget.setPixmap(pixmap.scaled(
-            250, 250,
-            Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.SmoothTransformation
-        ))
+        return ImageWidget(db_id, image_path, 250, 250)
+    
 
-        return image_widget
+    # Quit the application when the main window is closed
+    def closeEvent(self, event: QCloseEvent) -> None:
+        QApplication.quit()
