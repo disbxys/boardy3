@@ -1,21 +1,13 @@
-import os
-from typing import Sequence
 
-from PyQt6.QtCore import Qt, pyqtSlot
-from PyQt6.QtGui import QCloseEvent, QMouseEvent, QPixmap
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QCheckBox,
-    QFileDialog,
     QHBoxLayout,
     QLabel,
-    QMainWindow,
-    QProgressDialog,
-    QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget
 )
-from sqlalchemy import Column
 
 from database.models import Tag
 from ui.layout import FlowLayout

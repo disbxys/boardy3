@@ -1,17 +1,10 @@
 import os
-from typing import Sequence
 
 from PyQt6.QtCore import Qt, pyqtSlot
-from PyQt6.QtGui import QCloseEvent, QMouseEvent, QPixmap
+from PyQt6.QtGui import QMouseEvent, QPixmap
 from PyQt6.QtWidgets import (
-    QCheckBox,
-    QFileDialog,
-    QHBoxLayout,
     QLabel,
     QMainWindow,
-    QProgressDialog,
-    QPushButton,
-    QScrollArea,
     QVBoxLayout,
     QWidget
 )
@@ -19,7 +12,6 @@ from sqlalchemy import Column
 
 from database.database_manager import DatabaseManager
 from database.models import Tag
-from ui.list import WidgetList
 from ui.tag import TagsWindow
 
 

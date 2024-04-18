@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import List, Optional
+from typing import Optional
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
@@ -11,7 +11,7 @@ from ui.layout import clear_layout
 
 
 class WidgetList(QWidget):
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
 
         self.list_layout = QVBoxLayout()

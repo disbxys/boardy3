@@ -2,11 +2,10 @@ import os
 from typing import Sequence
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QCloseEvent, QPixmap
+from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
-    QLabel,
     QMainWindow,
     QProgressDialog,
     QPushButton,
