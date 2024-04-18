@@ -4,6 +4,13 @@ from PyQt6.QtCore import Qt, QMargins, QPoint, QRect, QSize
 from PyQt6.QtWidgets import QLayout, QSizePolicy, QWidget
 
 
+def clear_layout(layout: QLayout) -> None:
+    for i in reversed(range(layout.count())):
+            widget = layout.itemAt(i)
+            if widget is not None:
+                widget.widget().deleteLater()
+
+
 class FlowLayout(QLayout):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)

@@ -20,7 +20,7 @@ from database.database_manager import DatabaseManager
 from database.image_loader import ImageLoader, DirImageLoader
 import database.models as db_models
 from ui.image import ImageWidget
-from ui.layouts import FlowLayout
+from ui.layout import FlowLayout, clear_layout
 from ui.searchbox import SearchBox
 from ui.toolbar import ToolBar
 
@@ -197,12 +197,7 @@ class MainWindow(QMainWindow):
     
 
     def clear_images_layout(self) -> None:
-        for i in reversed(range(self.images_layout.count())):
-            widget = self.images_layout.itemAt(i)
-            if widget is not None:
-                widget.widget().deleteLater()
-            
-                # self.images_layout.removeItem(widget)
+        clear_layout(self.images_layout)
 
     
     def _add_image_to_layout(self, image: db_models.Image) -> None:
