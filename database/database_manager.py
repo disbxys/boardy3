@@ -153,6 +153,13 @@ class DatabaseManager:
             .all()
     
 
+    def search_tags(self, keyword: str) -> list[Tag]:
+        return self.session.query(Tag)\
+            .filter(Tag.name.like(f"{keyword}%"))\
+            .limit(10)\
+            .all()
+
+
     def get_image_path(self, filename: str | Column[str]) -> str:
         filename = str(filename)
         return os.path.normpath(os.path.join(

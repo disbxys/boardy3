@@ -65,7 +65,8 @@ class ImageWindow(QMainWindow):
 
         self.central_widget.setLayout(layout)
 
-        # Redefine image mouse press event to do nothing
+        # Redefine image mouse press event to do nothing. Otherwise,
+        # it would create a new image window every left click.
         self.image_widget.mousePressEvent = self.mousePressEvent
 
     

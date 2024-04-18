@@ -52,10 +52,8 @@ class MainWindow(QMainWindow):
         self.toolbar = ToolBar(db_manager)
         self.toolbar.page_updated.connect(self.refresh_images)
 
-        self.searchbox = SearchBox()
+        self.searchbox = SearchBox(db_manager)
         self.searchbox.search_button.clicked.connect(self.search_images)
-        # TODO: Remove this line after tagging is properly implemented
-        self.searchbox.setEnabled(False)
 
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
@@ -173,7 +171,8 @@ class MainWindow(QMainWindow):
 
         # Reset page back to 1
         self.toolbar.reset_page()
-        
+        # TODO: This is not optimal since the page gets refreshed before
+        # clearing the layout again.
         # Clear existing widgets from layout
         self.clear_images_layout()
 
@@ -200,9 +199,10 @@ class MainWindow(QMainWindow):
     def clear_images_layout(self) -> None:
         for i in reversed(range(self.images_layout.count())):
             widget = self.images_layout.itemAt(i)
-            if widget:
-                widget = widget.widget()
-                widget.setParent(None)
+            if widget is not None:
+                widget.widget().deleteLater()
+            
+                # self.images_layout.removeItem(widget)
 
     
     def _add_image_to_layout(self, image: db_models.Image) -> None:
