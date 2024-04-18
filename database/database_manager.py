@@ -163,7 +163,7 @@ class DatabaseManager:
 
     def search_tags(self, keyword: str) -> list[Tag]:
         return self.session.query(Tag)\
-            .filter(Tag.name.like(f"{keyword}%"))\
+            .filter(Tag.name.ilike(f"{keyword}%"))\
             .limit(10)\
             .all()
 
