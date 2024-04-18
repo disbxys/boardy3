@@ -4,7 +4,9 @@ from typing import Sequence
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QCloseEvent, QMouseEvent, QPixmap
 from PyQt6.QtWidgets import (
+    QCheckBox,
     QFileDialog,
+    QHBoxLayout,
     QLabel,
     QMainWindow,
     QProgressDialog,
@@ -15,6 +17,11 @@ from PyQt6.QtWidgets import (
 )
 from sqlalchemy import Column
 
+from database.database_manager import DatabaseManager
+from database.models import Tag
+from ui.list import WidgetList
+from ui.tag import TagsWindow
+
 
 class ImageWidget(QLabel):
     def __init__(
@@ -23,11 +30,14 @@ class ImageWidget(QLabel):
             image_path: str,
             width: int | None = None,
             height: int | None = None,
+            db_manager: DatabaseManager | None = None
     ):
         super().__init__()
 
         self.image_path = image_path
         self.db_id = db_id
+
+        self.db_manager = db_manager or DatabaseManager()
 
         _pixmap = QPixmap(self.image_path)
         _w = width if width else _pixmap.width()
@@ -47,6 +57,10 @@ class ImageWidget(QLabel):
             self.image_window = ImageWindow(self.db_id, self.image_path)
             self.image_window.show()
 
+    
+    def fetch_tags(self) -> list[Tag]:
+        return self.db_manager.get_tags_by_image_id(self.db_id)
+
 
 class ImageWindow(QMainWindow):
     def __init__(self, db_id: int | Column[int], image_path: str):
@@ -58,16 +72,26 @@ class ImageWindow(QMainWindow):
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
+        # Display image
         self.image_widget = ImageWidget(db_id, image_path, 800, 800)
+
+        # Display image tags
+        tags_list = self.fetch_tags()     # Get image tags from database
+        self.tags_panel = TagsWindow(tags_list)
 
         layout = QVBoxLayout()
         layout.addWidget(self.image_widget, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.tags_panel)
 
         self.central_widget.setLayout(layout)
 
         # Redefine image mouse press event to do nothing. Otherwise,
         # it would create a new image window every left click.
         self.image_widget.mousePressEvent = self.mousePressEvent
+
+
+    def fetch_tags(self) -> list[Tag]:
+        return self.image_widget.fetch_tags()
 
     
     def mousePressEvent(self, ev: QMouseEvent):

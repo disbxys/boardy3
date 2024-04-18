@@ -3,7 +3,7 @@ Boardy3 is an alternative version of [Boardy2](https://github.com/disbxys/boardy
 
 ## Todo:
 - [X] Open window with enlarged photo of image when clicked.
-- [ ] Tagging system
+- [ ] Tagging system (WIP)
 - [ ] Fix cancel button during import
 
 ## Dependencies

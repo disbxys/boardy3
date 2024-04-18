@@ -153,6 +153,14 @@ class DatabaseManager:
             .all()
     
 
+    def get_tags_by_image_id(self, id: int | Column[int]) -> list[Tag]:
+        return self.session.query(Tag)\
+            .join(image_tag, image_tag.c.tag_id == Tag.id)\
+            .join(Image, Image.id == image_tag.c.image_id)\
+            .filter(image_tag.c.image_id == id)\
+            .all()
+
+
     def search_tags(self, keyword: str) -> list[Tag]:
         return self.session.query(Tag)\
             .filter(Tag.name.like(f"{keyword}%"))\
