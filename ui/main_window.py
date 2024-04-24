@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
 )
 from sqlalchemy import Column
 
+from database import column_to_int
 from database.database_manager import DatabaseManager
 from database.image_loader import ImageLoader, DirImageLoader
 import database.models as db_models
@@ -200,7 +201,7 @@ class MainWindow(QMainWindow):
 
     
     def _add_image_to_layout(self, image: db_models.Image) -> None:
-        image_widget = self._create_image_widget(image.id, image.filename)
+        image_widget = self._create_image_widget(column_to_int(image.id), image.filename)
         self.images_layout.addWidget(image_widget)
 
 
@@ -211,7 +212,7 @@ class MainWindow(QMainWindow):
 
     def _create_image_widget(
             self,
-            db_id: int | Column[int],
+            db_id: int,
             filename: str | Column[str]
     ) -> ImageWidget:
         image_path = self.db_manager.get_image_path(filename)        

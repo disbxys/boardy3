@@ -21,6 +21,13 @@ class DatabaseItemExists(DatabaseException):
     """
 
 
+class DatabaseItemDoesNotExist(DatabaseException):
+    """
+    Exception class for when attempting to retrieve an item when it
+    does not exist in the database.
+    """
+
+
 class DatabaseManager:
     DEFAULT_PAGE_SIZE = 20
 
@@ -89,7 +96,7 @@ class DatabaseManager:
 
 
     def get_image(self, id: int) -> Optional[Image]:
-        return Image.query.filter_by(id=id).first()
+        return self.session.query(Image).filter_by(id=id).first()
 
 
     def get_all_images(self, newest_first: bool = False) -> list[Image]:
@@ -159,6 +166,46 @@ class DatabaseManager:
             .join(Image, Image.id == image_tag.c.image_id)\
             .filter(image_tag.c.image_id == id)\
             .all()
+    
+
+    def get_tag_by_name(self, name: str | Column[str]) -> Tag | None:
+        return self.session.query(Tag)\
+            .filter_by(name=name)\
+            .first()
+    
+
+    def add_tag(self, name: str) -> tuple[Tag, bool]:
+        """
+        Returns False if a Tag object with the given name exists.
+        Otherwise, create a new Tag in the db and return True.
+        """
+        tag = self.get_tag_by_name(name)
+        if tag is not None:
+            return tag, False
+        
+        new_tag = Tag(name=name)
+
+        self.session.add(new_tag)
+
+        return self.get_tag_by_name(name), True
+    
+
+    def add_tag_to_image(self, tag: Tag, image_id: int) -> bool:
+        # Verify image id
+        if image:= self.get_image(image_id):
+            # Add tag to image if not on image already.
+            if tag not in image.tags:
+                image.tags.append(tag)
+                self.save()
+                return True
+            else:
+                return False
+        
+        raise DatabaseItemDoesNotExist(f"Image id <{image_id}> does not exist.")
+
+
+    def save(self):
+        self.session.commit()
 
 
     def search_tags(self, keyword: str) -> list[Tag]:

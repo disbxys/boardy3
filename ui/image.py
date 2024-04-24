@@ -18,7 +18,7 @@ from ui.tag import TagsWindow
 class ImageWidget(QLabel):
     def __init__(
             self,
-            db_id: int | Column[int],
+            db_id: int,
             image_path: str,
             width: int | None = None,
             height: int | None = None,
@@ -55,7 +55,7 @@ class ImageWidget(QLabel):
 
 
 class ImageWindow(QMainWindow):
-    def __init__(self, db_id: int | Column[int], image_path: str):
+    def __init__(self, db_id: int, image_path: str):
         super().__init__()
 
         # Use the image filename as the window title
@@ -68,14 +68,14 @@ class ImageWindow(QMainWindow):
         self.image_widget = ImageWidget(db_id, image_path, 800, 800)
 
         # Display image tags
-        tags_list = self.fetch_tags()     # Get image tags from database
-        self.tags_panel = TagsWindow(tags_list)
+        # tags_list = self.fetch_tags()     # Get image tags from database
+        self.tags_panel = TagsWindow(self.image_widget.db_id)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.image_widget, alignment=Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.tags_panel)
+        self.layout_ = QVBoxLayout()
+        self.layout_.addWidget(self.image_widget, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.layout_.addWidget(self.tags_panel)
 
-        self.central_widget.setLayout(layout)
+        self.central_widget.setLayout(self.layout_)
 
         # Redefine image mouse press event to do nothing. Otherwise,
         # it would create a new image window every left click.

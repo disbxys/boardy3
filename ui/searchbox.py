@@ -34,17 +34,13 @@ class SearchBox(QWidget):
 
         self.setLayout(layout)
 
-
-    @pyqtSlot()
-    def _update_completer(self, text):
-        """Restart the timer when text changes"""
-        self.timer.start(500)
-
     
     def featch_and_update_completer(self):
+        # Remove any trailing whitespace
         search_text = self.search_line_edit.text().strip()
 
         # Do not search for tags if searchline is empty
+        # TODO: Maybe create a custom Completer if handle these cases
         if search_text != "":
             search_terms = self._fetch_search_terms(search_text)
             self.completer_model.setStringList(search_terms)

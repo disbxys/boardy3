@@ -1,16 +1,20 @@
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSignal, Qt, QStringListModel
 from PyQt6.QtWidgets import (
     QCheckBox,
+    QCompleter,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QScrollArea,
     QVBoxLayout,
     QWidget
 )
 
+from database import column_to_int
+from database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
 from database.models import Tag
-from ui.layout import FlowLayout
+from ui.layout import FlowLayout, clear_layout
 
 
 class TagWidget(QWidget):
@@ -19,9 +23,11 @@ class TagWidget(QWidget):
 
         self.tag_id = str(tag.id)
         self.tag_name = str(tag.name)
+        # The number of images that contain the tag
+        self.image_count = len(tag.images)
 
         self.checkbox = QCheckBox()
-        self.tag_description = QLabel(self.tag_name)
+        self.tag_description = QLabel(f"{self.tag_name} ({self.image_count})")
 
         layout = QHBoxLayout()
         layout.addWidget(self.checkbox)
@@ -33,24 +39,124 @@ class TagWidget(QWidget):
 class TagsWindow(QWidget):
     """A class for displaying an image's tag(s)"""
 
-    def __init__(self, tags: list[Tag] | None = None):
+    def __init__(
+            self,
+            image_id: int,
+            db_manager: DatabaseManager | None = None
+    ):
         super().__init__()
 
+        self.db_manager = db_manager or DatabaseManager()
+        self.image_id = image_id
+
         # Define an area to display tags
-        self.scroll_area = QScrollArea()
-        self.tags_list_widget = FlowLayout(self.scroll_area)
+        self.tags_scroll_area = QScrollArea()
+        self.tags_list_layout = FlowLayout(self.tags_scroll_area)
+        ### TODO: Implement option to delete tag with checked boxes. ###
         
-        if tags is not None:
-            # self.tags_list.extend(TagWidget(tag) for tag in tags)
-            for tag in tags:
-                self.tags_list_widget.addWidget(TagWidget(tag))
+        # Display image tags
+        self.refresh_tags_list()
 
         # Set scroll area properties
-        self.scroll_area.setWidgetResizable(True)
-        # self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.tags_scroll_area.setWidgetResizable(True)
+        self.tags_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+        # Setup a tag input box for adding/creating new tags
+        self.tag_input = TagInsertBox(self.image_id, self.db_manager)
+
+        self.tag_input.tag_added.connect(self.refresh_tags_list)
 
         layout = QVBoxLayout()
-        layout.addWidget(self.scroll_area)
+        layout.addWidget(self.tags_scroll_area)
+        layout.addWidget(self.tag_input)
 
         self.setLayout(layout)
+
+
+    def refresh_tags_list(self):
+        if self.tags_list_layout.count() > 0:
+            clear_layout(self.tags_list_layout)
+
+        for tag in self.db_manager.get_tags_by_image_id(self.image_id):
+            self.tags_list_layout.addWidget(TagWidget(tag))
+
+
+class TagInsertBox(QWidget):
+    """A class for handling adding new tags"""
+    tag_added = pyqtSignal()
+
+    def __init__(
+            self,
+            image_id: int,
+            db_manager: DatabaseManager
+    ):
+        super().__init__()
+
+        self.db_manager = db_manager
+        self.image_id = image_id
+
+        self.input_box = QLineEdit()
+        self.input_box.returnPressed.connect(self.on_return_pressed)
+
+        # Create a QCompleter for input box
+        self.completer = QCompleter()
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        self.input_box.setCompleter(self.completer)
+        # Initialize a Completer Model to pair with QCompleter
+        self.completer_model = QStringListModel()
+
+        self.input_box.textChanged.connect(self.featch_and_update_completer)
+
+        layout = QHBoxLayout()
+        layout.addWidget(self.input_box)
+
+        self.setLayout(layout)
+
+
+    def featch_and_update_completer(self):
+        # Remove any trailing whitespace
+        search_text = self.input_box.text().strip()
+
+        # Do not search for tags if searchline is empty
+        # TODO: Maybe create a custom Completer if handle these cases
+        if search_text != "":
+            search_terms = self._fetch_search_terms(search_text)
+            self.completer_model.setStringList(search_terms)
+            self.completer.setModel(self.completer_model)
+
+
+    def _fetch_search_terms(self, text: str) -> list[str]:
+        search_terms = self.db_manager.search_tags(text)
+        return [str(search_term.name) for search_term in search_terms]
+
+    
+    def on_return_pressed(self):
+        image = self.db_manager.get_image(self.image_id)
+        if image is None:
+            raise DatabaseItemDoesNotExist(f"Image id <{self.image_id}> does not exist.")
+
+        tag_name = self.input_box.text().strip()
+        tag_name = tag_name.replace(" ", "_")
+
+        if tag_name:
+            tag = self.db_manager.get_tag_by_name(tag_name)
+
+            # Try adding tag to db if new else get tag from db
+            tag, is_new = self.db_manager.add_tag(tag_name)
+            if is_new:
+                print(f"New tag created: <{tag.name}>.")
+
+
+            if tag_newly_added:= self.db_manager.add_tag_to_image(tag, column_to_int(image.id)):
+                print(f"Added tag <{self.input_box.text().strip()}> to image <{self.image_id}>.")
+            else:
+                print(f"Tag <{self.input_box.text().strip()}> already exists for image <{self.image_id}>.")
+
+
+            # Clear input box at the end
+            self.input_box.clear()
+
+            if tag_newly_added:
+                self.tag_added.emit()
+
