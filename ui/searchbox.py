@@ -26,12 +26,7 @@ class SearchBox(QWidget):
         # Initialize a Completer Model to pair with QCompleter
         self.completer_model = QStringListModel()
 
-        self.search_line_edit.textChanged.connect(self._update_completer)
-
-        # Timer for delayed execution of updating completer
-        self.timer = QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.featch_and_update_completer)
+        self.search_line_edit.textChanged.connect(self.featch_and_update_completer)
 
         layout = QHBoxLayout()
         layout.addWidget(self.search_line_edit)
