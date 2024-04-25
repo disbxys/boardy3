@@ -144,11 +144,9 @@ class MainWindow(QMainWindow):
             # Change max value in progress dialog
             dir_image_loader.scan_completed.connect(progress_dialog.setMaximum)
 
-            # Hide the cancel button (until I can find a better way
-            # to handle safely exiting the image loader thread)
-            # (2024-03-27)
-            # progress_dialog.findChildren(QPushButton)[0].hide()
-            progress_dialog.canceled.connect(dir_image_loader.terminate)    # The cancel button doesn't really work
+            # I have no idea why this started working properly.
+            # Just gonna assume it barrel magic. (2024-04-25)
+            progress_dialog.canceled.connect(dir_image_loader.terminate)
 
             # Start the ImageLoader thread
             dir_image_loader.start()
@@ -171,7 +169,7 @@ class MainWindow(QMainWindow):
 
         # Reset page back to 1
         self.toolbar.reset_page()
-        # TODO: This is not optimal since the page gets refreshed before
+        # FIXME: This is not optimal since the page gets refreshed before
         # clearing the layout again.
         # Clear existing widgets from layout
         self.clear_images_layout()
