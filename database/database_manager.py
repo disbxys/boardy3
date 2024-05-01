@@ -203,6 +203,39 @@ class DatabaseManager:
         
         raise DatabaseItemDoesNotExist(f"Image id <{image_id}> does not exist.")
 
+    
+    def remove_tag_from_image(self, tag_id: int, image_id: int):
+        self.remove_tags_from_image([tag_id], image_id)
+
+    
+    def remove_tags_from_image(self, tag_ids: list[int], image_id: int):
+        tags = self.session.query(Tag)\
+            .filter(Tag.id.in_(tag_ids))\
+            .all()
+        
+        image = self.get_image(image_id)
+
+        if image and len(tags) > 0:
+            print(tags)
+            image.remove_tags(tags)
+
+            self.save()
+
+
+    def delete_tag(self, tag_id: int):
+        self.delete_tags([tag_id])
+    
+
+    def delete_tags(self, tag_ids: list[int]):
+        tags = self.session.query(Tag)\
+            .filter(Tag.id.in_(tag_ids))\
+            .all()
+        
+        for tag in tags:
+            self.session.delete(tag)
+
+        self.save()
+
 
     def save(self):
         self.session.commit()

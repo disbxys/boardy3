@@ -1,11 +1,14 @@
 
-from PyQt6.QtCore import pyqtSignal, Qt, QStringListModel
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QStringListModel
 from PyQt6.QtWidgets import (
     QCheckBox,
     QCompleter,
     QHBoxLayout,
     QLabel,
+    QLayout,
     QLineEdit,
+    QMessageBox,
+    QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget
@@ -52,7 +55,14 @@ class TagsWindow(QWidget):
         # Define an area to display tags
         self.tags_scroll_area = QScrollArea()
         self.tags_list_layout = FlowLayout(self.tags_scroll_area)
+
         ### TODO: Implement option to delete tag with checked boxes. ###
+        self.remove_tag_button = QPushButton("Remove")
+        self.remove_tag_button.clicked.connect(self._remove_tags)
+
+        # Create a checkbox to switch between removing tags from an image
+        # and deleting tags.
+        self.delete_tag_checkbox = QCheckBox("Delete")
         
         # Display image tags
         self.refresh_tags_list()
@@ -63,12 +73,13 @@ class TagsWindow(QWidget):
 
         # Setup a tag input box for adding/creating new tags
         self.tag_input = TagInsertBox(self.image_id, self.db_manager)
-
         self.tag_input.tag_added.connect(self.refresh_tags_list)
 
         layout = QVBoxLayout()
         layout.addWidget(self.tags_scroll_area)
         layout.addWidget(self.tag_input)
+        layout.addWidget(self.remove_tag_button)
+        layout.addWidget(self.delete_tag_checkbox)
 
         self.setLayout(layout)
 
@@ -79,6 +90,89 @@ class TagsWindow(QWidget):
 
         for tag in self.db_manager.get_tags_by_image_id(self.image_id):
             self.tags_list_layout.addWidget(TagWidget(tag))
+
+        
+    @pyqtSlot()
+    def _remove_tags(self):
+        checked_tags = self._gather_checked_tags()
+
+        msg_box = QMessageBox()
+
+        match self.delete_tag_checkbox.checkState():
+            case Qt.CheckState.Checked:
+                answer = msg_box.question(
+                    self,
+                    "Delete Tag Confirmation",
+                    "Delete the selected tags from the database?",
+                    msg_box.StandardButton.Yes | msg_box.StandardButton.No
+                )
+
+                if answer == msg_box.StandardButton.Yes:
+                    print("Tags deleted from database:")
+                    print([tag.tag_name for tag in checked_tags])
+
+                    self.db_manager.delete_tags(
+                        [int(tag.tag_id) for tag in checked_tags]
+                    )
+
+            case Qt.CheckState.Unchecked:
+                answer = msg_box.question(
+                    self,
+                    "Remove Tag Confirmation",
+                    "Remove the selected tags from the image?",
+                    msg_box.StandardButton.Yes | msg_box.StandardButton.No
+                )
+
+                if answer == msg_box.StandardButton.Yes:
+                    print("Tags removed from image:")
+                    print([tag.tag_name for tag in checked_tags])
+                    
+                    self.db_manager.remove_tags_from_image(
+                        [int(tag.tag_id) for tag in checked_tags],
+                        self.image_id
+                    )
+            case _:
+                # This should never get here
+                raise Exception("Unknown check state detected.")
+
+        self.refresh_tags_list()
+
+
+    # @pyqtSlot()
+    # def _delete_tags(self):
+    #     checked_tags = self._gather_checked_tags()
+
+    #     msg_box = QMessageBox()
+    #     answer = msg_box.question(
+    #         self,
+    #         "Delete Tag Confirmation",
+    #         "Delete the selected tags from the database?",
+    #         msg_box.StandardButton.Yes | msg_box.StandardButton.No
+    #     )
+
+    #     if answer == msg_box.StandardButton.Yes:
+    #         print("Tags deleted from database:")
+    #         print([tag.tag_name for tag in checked_tags])
+
+    #         ### TODO: Finish implementing tag delete ###
+
+    
+    def _gather_checked_tags(self) -> list[TagWidget]:
+        checked_tags: list[TagWidget] = []
+        for tag in self._iterate_layout(self.tags_list_layout):
+            if isinstance(tag, TagWidget):
+                if tag.checkbox.isChecked():
+                    checked_tags.append(tag)
+        
+        return checked_tags
+
+
+    def _iterate_layout(self, layout: QLayout):
+        for i in reversed(range(layout.count())):
+            widget = layout.itemAt(i)
+            if widget is not None:
+                yield widget.widget()
+
 
 
 class TagInsertBox(QWidget):
