@@ -18,6 +18,10 @@ from database import column_to_int
 from database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
 from database.models import Tag
 from ui.layout import FlowLayout, clear_layout
+from utils import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class TagWidget(QWidget):
@@ -99,7 +103,7 @@ class TagsWindow(QWidget):
         msg_box = QMessageBox()
 
         match self.delete_tag_checkbox.checkState():
-            case Qt.CheckState.Checked:
+            case Qt.CheckState.Checked:     # Delete Tag
                 answer = msg_box.question(
                     self,
                     "Delete Tag Confirmation",
@@ -108,14 +112,16 @@ class TagsWindow(QWidget):
                 )
 
                 if answer == msg_box.StandardButton.Yes:
-                    print("Tags deleted from database:")
-                    print([tag.tag_name for tag in checked_tags])
+                    logger.info(
+                        "Tags deleted from database: {}"\
+                        .format(" ".join([tag.tag_name for tag in checked_tags]))
+                    )
 
                     self.db_manager.delete_tags(
                         [int(tag.tag_id) for tag in checked_tags]
                     )
 
-            case Qt.CheckState.Unchecked:
+            case Qt.CheckState.Unchecked:   # Remove tag from image
                 answer = msg_box.question(
                     self,
                     "Remove Tag Confirmation",
@@ -124,8 +130,10 @@ class TagsWindow(QWidget):
                 )
 
                 if answer == msg_box.StandardButton.Yes:
-                    print("Tags removed from image:")
-                    print([tag.tag_name for tag in checked_tags])
+                    logger.info(
+                        "Tags removed from image: {}"\
+                        .format(" ".join([tag.tag_name for tag in checked_tags]))
+                    )
                     
                     self.db_manager.remove_tags_from_image(
                         [int(tag.tag_id) for tag in checked_tags],
@@ -238,14 +246,15 @@ class TagInsertBox(QWidget):
 
             # Try adding tag to db if new else get tag from db
             tag, is_new = self.db_manager.add_tag(tag_name)
-            if is_new:
-                print(f"New tag created: <{tag.name}>.")
+            # if is_new:
+            #     logger.info(f"New tag created: <{tag.id}> | <{tag.name}>.")
 
 
-            if tag_newly_added:= self.db_manager.add_tag_to_image(tag, column_to_int(image.id)):
-                print(f"Added tag <{self.input_box.text().strip()}> to image <{self.image_id}>.")
-            else:
-                print(f"Tag <{self.input_box.text().strip()}> already exists for image <{self.image_id}>.")
+            tag_newly_added = self.db_manager.add_tag_to_image(tag, column_to_int(image.id))
+            # if tag_newly_added:= self.db_manager.add_tag_to_image(tag, column_to_int(image.id)):
+            #     logger.info(f"Added tag <{self.input_box.text().strip()}> to image <{self.image_id}>.")
+            # else:
+            #     logger.info(f"Tag <{self.input_box.text().strip()}> already exists for image <{self.image_id}>.")
 
 
             # Clear input box at the end

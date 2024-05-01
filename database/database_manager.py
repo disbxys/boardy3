@@ -7,6 +7,10 @@ from sqlalchemy import create_engine, Column
 from sqlalchemy.orm import Session
 
 from database.models import Base, Image, image_tag, Tag
+from utils import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class DatabaseException(Exception):
@@ -186,7 +190,8 @@ class DatabaseManager:
         new_tag = Tag(name=name)
 
         self.session.add(new_tag)
-
+        logger.info(f"New tag created: <{new_tag.id}> | <{new_tag.name}>.")
+    
         return self.get_tag_by_name(name), True
     
 
@@ -196,9 +201,12 @@ class DatabaseManager:
             # Add tag to image if not on image already.
             if tag not in image.tags:
                 image.tags.append(tag)
+                logger.info(f"Added tag <{tag.name}> to image <{image.id}>.")
+
                 self.save()
                 return True
             else:
+                logger.info(f"Tag <{tag.name}> already exists for image <{image_id}>.")
                 return False
         
         raise DatabaseItemDoesNotExist(f"Image id <{image_id}> does not exist.")
@@ -216,7 +224,6 @@ class DatabaseManager:
         image = self.get_image(image_id)
 
         if image and len(tags) > 0:
-            print(tags)
             image.remove_tags(tags)
 
             self.save()

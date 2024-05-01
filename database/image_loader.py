@@ -5,6 +5,10 @@ import magic
 from PyQt6.QtCore import pyqtSignal, QThread
 
 from database.database_manager import DatabaseManager, DatabaseItemExists
+from utils import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class ImageLoader(QThread):
@@ -27,8 +31,10 @@ class ImageLoader(QThread):
             try:
                 if is_image(file_path):
                     self.db_manager.add_image(file_path, tags=["general"])
+                    logger.info(f"New image added {file_path}.")
             except DatabaseItemExists:
                 # Skip items that already exist in the database
+                logger.debug(f"Image <{file_path}> already exists.")
                 pass
 
             # Update progress
@@ -66,8 +72,10 @@ class DirImageLoader(QThread):
             try:
                 if is_image(file_path):
                     self.db_manager.add_image(file_path, tags=["general"])
+                    logger.info(f"New image added {file_path}.")
             except DatabaseItemExists:
                 # Skip items that already exist in the database
+                logger.debug(f"Image <{file_path}> already exists.")
                 pass
 
             # Update progress
@@ -88,7 +96,6 @@ class DirImageLoader(QThread):
 
 def is_image(file_path: str) -> bool:
     try:
-        print(file_path)
         mtype = magic.from_file(file_path, mime=True)
         return mtype.startswith("image/")
     except UnicodeDecodeError:
