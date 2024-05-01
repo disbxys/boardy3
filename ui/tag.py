@@ -60,7 +60,6 @@ class TagsWindow(QWidget):
         self.tags_scroll_area = QScrollArea()
         self.tags_list_layout = FlowLayout(self.tags_scroll_area)
 
-        ### TODO: Implement option to delete tag with checked boxes. ###
         self.remove_tag_button = QPushButton("Remove")
         self.remove_tag_button.clicked.connect(self._remove_tags)
 
@@ -150,25 +149,6 @@ class TagsWindow(QWidget):
                 raise Exception("Unknown check state detected.")
 
         self.refresh_tags_list()
-
-
-    # @pyqtSlot()
-    # def _delete_tags(self):
-    #     checked_tags = self._gather_checked_tags()
-
-    #     msg_box = QMessageBox()
-    #     answer = msg_box.question(
-    #         self,
-    #         "Delete Tag Confirmation",
-    #         "Delete the selected tags from the database?",
-    #         msg_box.StandardButton.Yes | msg_box.StandardButton.No
-    #     )
-
-    #     if answer == msg_box.StandardButton.Yes:
-    #         print("Tags deleted from database:")
-    #         print([tag.tag_name for tag in checked_tags])
-
-    #         ### TODO: Finish implementing tag delete ###
 
     
     def _gather_checked_tags(self) -> list[TagWidget]:
