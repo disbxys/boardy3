@@ -121,6 +121,9 @@ class TagsWindow(QWidget):
                         [int(tag.tag_id) for tag in checked_tags]
                     )
 
+                    # Reset delete tag checkbox to unchecked state
+                    self.delete_tag_checkbox.setCheckState(Qt.CheckState.Unchecked)
+
             case Qt.CheckState.Unchecked:   # Remove tag from image
                 answer = msg_box.question(
                     self,
@@ -139,6 +142,9 @@ class TagsWindow(QWidget):
                         [int(tag.tag_id) for tag in checked_tags],
                         self.image_id
                     )
+
+                    # Reset delete tag checkbox to unchecked state
+                    self.delete_tag_checkbox.setCheckState(Qt.CheckState.Unchecked)
             case _:
                 # This should never get here
                 raise Exception("Unknown check state detected.")
