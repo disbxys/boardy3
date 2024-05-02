@@ -56,6 +56,8 @@ class TagsWindow(QWidget):
         self.db_manager = db_manager or DatabaseManager()
         self.image_id = image_id
 
+        self.setFixedHeight(200)
+
         # Define an area to display tags
         self.tags_scroll_area = QScrollArea()
         self.tags_list_layout = FlowLayout(self.tags_scroll_area)
