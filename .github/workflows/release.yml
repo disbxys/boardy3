@@ -4,6 +4,8 @@ on:
   # Every Friday at 00:00 UTC
   schedule:
     - cron: '0 0 * * 5'
+  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   build-app:
