@@ -1,6 +1,8 @@
 # Boardy3
 Boardy3 is an alternative version of [Boardy2](https://github.com/disbxys/boardy2) that uses PyQt6 as the primary framework to display your image collection in a gallery.
 
+[![release](https://github.com/disbxys/boardy3/actions/workflows/release.yml/badge.svg)](https://github.com/disbxys/boardy3/actions/workflows/release.yml)
+
 ## Dependencies
 ```
 Python
