@@ -42,7 +42,7 @@ class ToolBar(QWidget):
         # Page Size Combo Box
         self.page_size_combo_box = QComboBox()
         self.page_size_combo_box.setMaximumWidth(50)
-        self.page_size_combo_box.addItems(["25", "50", "100", "200", "500"])
+        self.page_size_combo_box.addItems(["10", "20", "30", "40", "50"])
         self.page_size_combo_box.currentTextChanged.connect(self.reset_page)
 
         # Update the page label after all components are created.
