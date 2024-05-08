@@ -49,18 +49,18 @@ class TagsWindow(QWidget):
     def __init__(
             self,
             image_id: int,
-            db_manager: DatabaseManager | None = None
+            db_manager: DatabaseManager | None = None,
+            portrait: bool = False
     ):
         super().__init__()
 
         self.db_manager = db_manager or DatabaseManager()
         self.image_id = image_id
 
-        self.setFixedHeight(200)
-
         # Define an area to display tags
-        self.tags_scroll_area = QScrollArea()
-        self.tags_list_layout = FlowLayout(self.tags_scroll_area)
+        self.tags_scroll_area = QScrollArea(self)
+        self.tags_scroll_widget = QWidget(self.tags_scroll_area)
+        self.tags_list_layout = FlowLayout(self.tags_scroll_widget)
 
         self.remove_tag_button = QPushButton("Remove")
         self.remove_tag_button.clicked.connect(self._remove_tags)
@@ -74,7 +74,13 @@ class TagsWindow(QWidget):
 
         # Set scroll area properties
         self.tags_scroll_area.setWidgetResizable(True)
-        self.tags_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.tags_scroll_area.setWidget(self.tags_scroll_widget)
+        if portrait:
+            self.setFixedWidth(200)
+            self.tags_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        else:
+            self.setFixedHeight(200)
+            self.tags_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
         # Setup a tag input box for adding/creating new tags
         self.tag_input = TagInsertBox(self.image_id, self.db_manager)

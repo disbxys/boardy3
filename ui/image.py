@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QMouseEvent, QPixmap
 from PyQt6.QtWidgets import (
     QLabel,
+    QHBoxLayout,
     QMainWindow,
     QVBoxLayout,
     QWidget
@@ -67,13 +68,25 @@ class ImageWindow(QMainWindow):
         # Display image
         self.image_widget = ImageWidget(db_id, image_path, 800, 800)
 
+        if self.image_widget.pixmap().width() > self.image_widget.pixmap().height():
+            portrait = False
+            self.layout_ = QVBoxLayout()
+        else:
+            portrait = True
+            self.layout_ = QHBoxLayout()
+
         # Display image tags
         # tags_list = self.fetch_tags()     # Get image tags from database
-        self.tags_panel = TagsWindow(self.image_widget.db_id)
+        self.tags_panel = TagsWindow(self.image_widget.db_id, portrait=portrait)
 
-        self.layout_ = QVBoxLayout()
+        # if self.image_widget.pixmap().width() > self.image_widget.pixmap().height():
+        #     self.layout_ = QVBoxLayout()
+        # else:
+        #     self.layout_ = QHBoxLayout()
+
+        # self.layout_ = QVBoxLayout()
         self.layout_.addWidget(self.image_widget, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.layout_.addWidget(self.tags_panel)
+        self.layout_.addWidget(self.tags_panel, stretch=1)
 
         self.central_widget.setLayout(self.layout_)
 
