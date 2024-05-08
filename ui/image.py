@@ -23,7 +23,8 @@ class ImageWidget(QLabel):
             image_path: str,
             width: int | None = None,
             height: int | None = None,
-            db_manager: DatabaseManager | None = None
+            db_manager: DatabaseManager | None = None,
+            detached: bool = False
     ):
         super().__init__()
 
@@ -31,6 +32,7 @@ class ImageWidget(QLabel):
         self.db_id = db_id
 
         self.db_manager = db_manager or DatabaseManager()
+        self.detached = detached
 
         _pixmap = QPixmap(self.image_path)
         _w = width if width else _pixmap.width()
@@ -41,14 +43,15 @@ class ImageWidget(QLabel):
             Qt.TransformationMode.SmoothTransformation
         ))
 
-        self.mousePressEvent = self.open_image_window
 
-    
-    @pyqtSlot()
-    def open_image_window(self, event: QMouseEvent):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.image_window = ImageWindow(self.db_id, self.image_path)
-            self.image_window.show()
+    def mousePressEvent(self, ev: QMouseEvent) -> None:
+        if not self.detached:
+            # Do not create a detached image window if this
+            # widget is already detached.
+            if ev.button() == Qt.MouseButton.LeftButton:
+                """Creates a detached window containing an image. """
+                self.image_window = ImageWindow(self.db_id, self.image_path)
+                self.image_window.show()
 
     
     def fetch_tags(self) -> list[Tag]:
@@ -66,7 +69,7 @@ class ImageWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         # Display image
-        self.image_widget = ImageWidget(db_id, image_path, 800, 800)
+        self.image_widget = ImageWidget(db_id, image_path, 800, 800, detached=True)
 
         if self.image_widget.pixmap().width() > self.image_widget.pixmap().height():
             portrait = False
@@ -75,24 +78,14 @@ class ImageWindow(QMainWindow):
             portrait = True
             self.layout_ = QHBoxLayout()
 
-        # Display image tags
-        # tags_list = self.fetch_tags()     # Get image tags from database
+        # Create a panel to contain tags
         self.tags_panel = TagsWindow(self.image_widget.db_id, portrait=portrait)
-
-        # if self.image_widget.pixmap().width() > self.image_widget.pixmap().height():
-        #     self.layout_ = QVBoxLayout()
-        # else:
-        #     self.layout_ = QHBoxLayout()
 
         # self.layout_ = QVBoxLayout()
         self.layout_.addWidget(self.image_widget, alignment=Qt.AlignmentFlag.AlignCenter)
         self.layout_.addWidget(self.tags_panel, stretch=1)
 
         self.central_widget.setLayout(self.layout_)
-
-        # Redefine image mouse press event to do nothing. Otherwise,
-        # it would create a new image window every left click.
-        self.image_widget.mousePressEvent = self.mousePressEvent
 
 
     def fetch_tags(self) -> list[Tag]:
