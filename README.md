@@ -11,7 +11,27 @@ python-magic
 SQLAlchemy
 ```
 
-*You might need to also install `python-magic-bin` if running on windows.*
+### Missing Libmagic
+There is a good chance that you will run into this error
+
+```
+File "C:\Users\default\AppData\Roaming\Python\Python3\site-packages\magic\loader.py", line 49, in load_lib
+    raise ImportError('failed to find libmagic.  Check your installation')
+ImportError: failed to find libmagic.  Check your installation
+```
+
+#### Windows
+
+You can fetch the DLLs for Windows for libmagic from @julian-r with
+```
+pip install python-magic-bin
+```
+
+Make sure to have this installed **AFTER** installing `python-magic`. Otherwise, you can run into the same error.
+
+#### Other OSs
+Refer to https://github.com/ahupp/python-magic#installation for more information
+
 
 ## How to Run
 This program can simply be run by running `launch.py`.
@@ -42,8 +62,8 @@ From there, copy the `instance` and `db` folders from the root directory in your
 You should be able to see all of your images after you run `launch.py`.
 
 ## Q & A
-Q: Why don't you support more image types like webp or [<i>insert some random image format</i>]?\
-A: I am trying to figure out a good way to support most common image types.
+Q: Why do I need to install python-magic like this? I've seen other people try this method and it works.\
+A: You might be right in that there other methods that could work. However, this was the most consistent method I have found and it works for me. You can try other methods if you want, but I'm not taking responsibility for that.
 
 Q: What is going to happen to Boardy2?\
 A: Going forward, I'll probably be working on it on and off. Right now, I want to focus on Boardy3.
