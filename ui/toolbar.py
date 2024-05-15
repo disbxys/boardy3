@@ -31,6 +31,7 @@ class ToolBar(QWidget):
         self.toolbar.addAction(prev_page_action)
 
         # Current Page Label
+        # TODO: Make editable for faster searching.
         self.page_label = QLabel()
         self.toolbar.addWidget(self.page_label)
 
@@ -95,7 +96,14 @@ class ToolBar(QWidget):
 
     
     def _get_max_page_count(self) -> int:
-        return math.ceil(self.db_manager.get_images_count() / self.get_current_page_size())
+        """
+        Calculate the last page based on the per_page value and round up
+        or set to one if there are no images.
+        """
+        return max(
+            math.ceil(self.db_manager.get_images_count() / self.get_current_page_size()),
+            1
+        )
     
 
     def get_current_page_size(self) -> int:
