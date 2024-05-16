@@ -48,6 +48,7 @@ class DatabaseManager:
         self.image_dir_path = os.path.join(
             os.getcwd(), "db", "image_files"
         )
+        os.makedirs(self.image_dir_path, exist_ok=True)
 
     
     def add_image(self, filepath: str, tags=None) -> None:

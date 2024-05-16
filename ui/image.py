@@ -1,11 +1,15 @@
 import os
+import re
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QMouseEvent, QPixmap
 from PyQt6.QtWidgets import (
+    QDialog,
     QLabel,
     QHBoxLayout,
     QMainWindow,
+    QPlainTextEdit,
+    QPushButton,
     QVBoxLayout,
     QWidget
 )
@@ -93,3 +97,34 @@ class ImageWindow(QMainWindow):
     
     def mousePressEvent(self, ev: QMouseEvent):
         return super().mousePressEvent(ev)
+
+
+class ImageUrlInputDialog(QDialog):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+
+        self.setWindowTitle("Enter Urls")
+        # self.setGeometry(200, 200, 300, 150)
+
+        self.input_box = QPlainTextEdit()
+
+        self.warning_label = QLabel("Enter one url per line")
+        
+        self.submit_button = QPushButton("Submit")
+        self.submit_button.clicked.connect(self.submit_access_token)
+
+        layout = QVBoxLayout()
+        layout.addStretch(1)
+        layout.addWidget(self.input_box)
+        layout.addWidget(self.warning_label)
+        layout.addWidget(self.submit_button)
+
+        self.setLayout(layout)
+    
+    def submit_access_token(self):
+        urls_input = self.input_box.toPlainText().strip()
+        urls_input = re.sub(r"\s{1,}", " ", urls_input)
+
+        self.image_urls = urls_input.split()
+        
+        self.close()

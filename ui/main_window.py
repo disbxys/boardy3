@@ -17,9 +17,9 @@ from sqlalchemy import Column
 
 from database import column_to_int
 from database.database_manager import DatabaseManager
-from database.image_loader import ImageLoader, DirImageLoader
+from database.image_loader import ImageLoader, DirImageLoader, NetworkImageLoader
 import database.models as db_models
-from ui.image import ImageWidget
+from ui.image import ImageUrlInputDialog, ImageWidget
 from ui.layout import FlowLayout, clear_layout
 from ui.searchbox import SearchBox
 from ui.toolbar import ToolBar
@@ -45,6 +45,10 @@ class MainWindow(QMainWindow):
         upload_images_button = QPushButton("Import Images", self)
         upload_images_button.clicked.connect(self.upload_images)
 
+        # Button for importing multiple images from urls
+        upload_web_images_button = QPushButton("Import Images (Web)", self)
+        upload_web_images_button.clicked.connect(self.upload_web_images)
+
         # Button for recursively importing images from a selected directory
         upload_image_dir_button = QPushButton("Import Folder (Recursive)", self)
         upload_image_dir_button.clicked.connect(self.upload_images_from_dir)
@@ -60,6 +64,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.searchbox)
         layout.addWidget(self.scroll_area)
         layout.addWidget(upload_images_button)
+        layout.addWidget(upload_web_images_button)
         layout.addWidget(upload_image_dir_button)
 
         # central_widget = QWidget()
@@ -110,6 +115,45 @@ class MainWindow(QMainWindow):
 
             # Start the ImageLoader thread
             image_loader.start()
+
+            # Display the progress dialog
+            progress_dialog.exec()
+
+            # Reset page back to 1
+            # This should trigger a page refresh
+            self.toolbar.reset_page()
+
+    
+    def upload_web_images(self) -> None:
+        url_dialogue = ImageUrlInputDialog()
+        # Grab the image urls
+        url_dialogue.exec()
+
+        image_urls = url_dialogue.image_urls
+
+        if image_urls:
+            # Create a progress dialog to show the progress of image loading
+            progress_dialog = QProgressDialog(
+                "Importing Images from Web...", "Cancel",
+                0, len(image_urls)
+            )
+            progress_dialog.setWindowTitle("Importing Images From Web")
+            progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+            progress_dialog.setAutoClose(True)
+
+            # Create an ImageLoader thread and connect signals
+            net_image_loader = NetworkImageLoader(self.db_manager, image_urls)
+            net_image_loader.progress_updated.connect(progress_dialog.setValue)
+            net_image_loader.finished.connect(progress_dialog.accept)
+
+            # Hide the cancel button (until I can find a better way
+            # to handle safely exiting the image loader thread)
+            # (2024-03-27)
+            # progress_dialog.findChildren(QPushButton)[0].hide()
+            progress_dialog.canceled.connect(net_image_loader.terminate)    # The cancel button doesn't really work
+
+            # Start the ImageLoader thread
+            net_image_loader.start()
 
             # Display the progress dialog
             progress_dialog.exec()
