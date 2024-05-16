@@ -1,6 +1,6 @@
 import os
 
-from PyQt6.QtCore import Qt, pyqtSlot
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QMouseEvent, QPixmap
 from PyQt6.QtWidgets import (
     QLabel,
@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget
 )
-from sqlalchemy import Column
 
 from database.database_manager import DatabaseManager
 from database.models import Tag
