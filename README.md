@@ -59,7 +59,7 @@ cd boardy2
 ```
 From there, copy the `instance` and `db` folders from the root directory in your `boardy3` folder and paste them in the root directory folder in your `boardy2` folder.
 
-You should be able to see all of your images after you run `launch.py`.
+After ```pip install``` to install all needed dependencies, you should be able to see all of your images when you run `launch.py`.
 
 ## Q & A
 Q: Why do I need to install python-magic like this? I've seen other people try this method and it works.\
