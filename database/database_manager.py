@@ -179,26 +179,34 @@ class DatabaseManager:
             .first()
     
 
-    def add_tag(self, name: str) -> tuple[Tag, bool]:
+    def add_tag(self, name: str) -> Tag:
         """
-        Returns False if a Tag object with the given name exists.
-        Otherwise, create a new Tag in the db and return True.
+        Create a new Tag with the given name to the db.
+
+        Returns the newly created tag.
+
+        Raises DatabaseItemExists if a tag with the same
+        name exists
         """
         tag = self.get_tag_by_name(name)
         if tag is not None:
-            return tag, False
+            raise DatabaseItemExists(f"Tag <{tag.name}> already exists in database.")
         
         new_tag = Tag(name=name)
 
         self.session.add(new_tag)
         logger.info(f"New tag created: <{new_tag.id}> | <{new_tag.name}>.")
     
-        return self.get_tag_by_name(name), True
+        return self.get_tag_by_name(name)
     
 
     def add_tag_to_image(self, tag: Tag, image_id: int) -> bool:
         # Verify image id
         if image:= self.get_image(image_id):
+            # Verify the tag exists
+            if self.get_tag_by_name(tag.name) is None:
+                raise DatabaseItemDoesNotExist(f"Tag <{tag.name}> does not exist.")
+
             # Add tag to image if not on image already.
             if tag not in image.tags:
                 image.tags.append(tag)

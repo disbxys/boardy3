@@ -3,6 +3,7 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QStringListModel
 from PyQt6.QtWidgets import (
     QCheckBox,
     QCompleter,
+    QDialog,
     QHBoxLayout,
     QLabel,
     QLayout,
@@ -228,20 +229,12 @@ class TagInsertBox(QWidget):
         tag_name = tag_name.replace(" ", "_")
 
         if tag_name:
-            tag = self.db_manager.get_tag_by_name(tag_name)
-
             # Try adding tag to db if new else get tag from db
-            tag, is_new = self.db_manager.add_tag(tag_name)
-            # if is_new:
-            #     logger.info(f"New tag created: <{tag.id}> | <{tag.name}>.")
-
+            tag = self.db_manager.get_tag_by_name(tag_name)
+            if tag is None:
+                tag = self.db_manager.add_tag(tag_name)
 
             tag_newly_added = self.db_manager.add_tag_to_image(tag, column_to_int(image.id))
-            # if tag_newly_added:= self.db_manager.add_tag_to_image(tag, column_to_int(image.id)):
-            #     logger.info(f"Added tag <{self.input_box.text().strip()}> to image <{self.image_id}>.")
-            # else:
-            #     logger.info(f"Tag <{self.input_box.text().strip()}> already exists for image <{self.image_id}>.")
-
 
             # Clear input box at the end
             self.input_box.clear()
