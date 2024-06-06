@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 from database import column_to_int
 from database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
 from database.models import Tag
-from ui.layout import FlowLayout, clear_layout
+from ui.layout import FlowLayout, clear_layout, iterate_layout
 from utils import get_logger
 
 
@@ -161,20 +161,12 @@ class TagsWindow(QWidget):
     
     def _gather_checked_tags(self) -> list[TagWidget]:
         checked_tags: list[TagWidget] = []
-        for tag in self._iterate_layout(self.tags_list_layout):
+        for tag in iterate_layout(self.tags_list_layout):
             if isinstance(tag, TagWidget):
                 if tag.checkbox.isChecked():
                     checked_tags.append(tag)
         
         return checked_tags
-
-
-    def _iterate_layout(self, layout: QLayout):
-        for i in reversed(range(layout.count())):
-            widget = layout.itemAt(i)
-            if widget is not None:
-                yield widget.widget()
-
 
 
 class TagInsertBox(QWidget):

@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from typing import Any, Optional
 
 from PyQt6.QtCore import Qt, QMargins, QPoint, QRect, QSize
@@ -9,6 +10,13 @@ def clear_layout(layout: QLayout) -> None:
             widget = layout.itemAt(i)
             if widget is not None:
                 widget.widget().deleteLater()
+
+
+def iterate_layout(layout: QLayout) -> Iterator[QWidget]:
+    for i in reversed(range(layout.count())):
+        widget = layout.itemAt(i)
+        if widget is not None:
+            yield widget.widget()
 
 
 class FlowLayout(QLayout):
