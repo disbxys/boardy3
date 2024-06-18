@@ -22,6 +22,7 @@ import database.models as db_models
 from ui.image import ImageUrlInputDialog, ImageWidget
 from ui.layout import FlowLayout, clear_layout
 from ui.searchbox import SearchBox
+from ui.tag import BatchCreateTagsDialog
 from ui.toolbar import ToolBar
 
 
@@ -53,6 +54,10 @@ class MainWindow(QMainWindow):
         upload_image_dir_button = QPushButton("Import Folder (Recursive)", self)
         upload_image_dir_button.clicked.connect(self.upload_images_from_dir)
 
+        # Button for batch creating tags
+        batch_create_tags_button = QPushButton("Create Tag(s)", self)
+        batch_create_tags_button.clicked.connect(self.batch_create_tags)
+
         self.toolbar = ToolBar(db_manager)
         self.toolbar.page_updated.connect(self.refresh_images)
 
@@ -66,6 +71,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(upload_images_button)
         layout.addWidget(upload_web_images_button)
         layout.addWidget(upload_image_dir_button)
+        layout.addWidget(batch_create_tags_button)
 
         # central_widget = QWidget()
         self.central_widget.setLayout(layout)
@@ -201,6 +207,12 @@ class MainWindow(QMainWindow):
             # Reset page back to 1
             # This should trigger a page refresh
             self.toolbar.reset_page()
+    
+
+    def batch_create_tags(self) -> None:
+        # Instance BatchCreateTagsDialog
+        batch_create_dialog = BatchCreateTagsDialog()
+        batch_create_dialog.exec()
 
         
     def search_images(self) -> None:

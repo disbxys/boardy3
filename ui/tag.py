@@ -1,5 +1,7 @@
 
+import re
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QStringListModel
+from PyQt6.QtGui import QEnterEvent
 from PyQt6.QtWidgets import (
     QCheckBox,
     QCompleter,
@@ -9,6 +11,7 @@ from PyQt6.QtWidgets import (
     QLayout,
     QLineEdit,
     QMessageBox,
+    QPlainTextEdit,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
@@ -16,7 +19,7 @@ from PyQt6.QtWidgets import (
 )
 
 from database import column_to_int
-from database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
+from database.database_manager import DatabaseItemDoesNotExist, DatabaseItemExists, DatabaseManager
 from database.models import Tag
 from ui.layout import FlowLayout, clear_layout, iterate_layout
 from utils import get_logger
@@ -242,3 +245,67 @@ class TagInsertBox(QWidget):
             if tag_newly_added:
                 self.tag_added.emit()
 
+
+class BatchCreateTagsDialog(QDialog):
+    def __init__(
+            self,
+            parent: QWidget | None = None,
+            db_manager: DatabaseManager | None = None
+    ) -> None:
+        super().__init__(parent)
+
+        self.setWindowTitle("Enter Tags")
+
+        self.db_manager = db_manager or DatabaseManager()
+
+        self.input_box_label = QLabel("One tag per line:")
+        self.input_box = QPlainTextEdit()
+
+        self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self.on_save)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.input_box_label)
+        layout.addWidget(self.input_box, stretch=1)
+        layout.addWidget(self.save_button)
+
+        self.setLayout(layout)
+
+
+    @pyqtSlot()
+    def on_save(self):
+        added_tags = list()
+
+        tag_names = self._parse_input()
+        for tag_name in tag_names:
+            try:
+                _tag = self.db_manager.add_tag(tag_name)
+                added_tags.append(_tag)
+            except DatabaseItemExists:
+                pass
+        
+        logger.info(f"Number of tags saved: {len(added_tags)}.")
+
+        self.close()
+
+
+    def _parse_input(self) -> list[str]:
+        """
+        Parse text from input box and return a list of
+        non-empty strings.
+        """
+
+        input_text = self.input_box.toPlainText()
+
+        if len(input_text.strip("\n")) == 0:
+            return list()
+        
+        tokens = list()
+        for token in input_text.split("\n"):
+            if token != "":
+                # Remove trailing/leading whitespace and replace
+                # all other whitespace with underline (_)
+                cleaned_token = re.sub(r"\s{1,}", "_", token.strip())
+                tokens.append(cleaned_token)
+
+        return tokens
