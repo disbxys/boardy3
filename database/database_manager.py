@@ -192,9 +192,16 @@ class DatabaseManager:
         if tag is not None:
             raise DatabaseItemExists(f"Tag <{tag.name}> already exists in database.")
         
-        new_tag = Tag(name=name)
+        tag = Tag(name=name)
 
-        self.session.add(new_tag)
+        self.session.add(tag)
+        self.save()
+
+        # Attempt to grab newly created tag
+        new_tag = self.get_tag_by_name(tag.name)
+        if new_tag is None:
+            raise DatabaseItemDoesNotExist(f"Tag <{tag.name}> does not exist.")
+
         logger.info(f"New tag created: <{new_tag.id}> | <{new_tag.name}>.")
     
         return self.get_tag_by_name(name)
