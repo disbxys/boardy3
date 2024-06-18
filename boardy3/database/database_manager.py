@@ -6,8 +6,8 @@ from typing import Optional
 from sqlalchemy import create_engine, Column
 from sqlalchemy.orm import Session
 
-from database.models import Base, Image, image_tag, Tag
-from utils import get_logger
+from boardy3.database.models import Base, Image, image_tag, Tag
+from boardy3.utils import get_logger
 
 
 logger = get_logger(__name__)

@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
-from ui.layout import clear_layout
+from boardy3.ui.layout import clear_layout
 
 
 class WidgetList(QWidget):

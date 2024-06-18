@@ -13,17 +13,16 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget
 )
-from sqlalchemy import Column
 
-from database import column_to_int
-from database.database_manager import DatabaseManager
-from database.image_loader import ImageLoader, DirImageLoader, NetworkImageLoader
-import database.models as db_models
-from ui.image import ImageUrlInputDialog, ImageWidget
-from ui.layout import FlowLayout, clear_layout
-from ui.searchbox import SearchBox
-from ui.tag import BatchCreateTagsDialog
-from ui.toolbar import ToolBar
+from boardy3.database import column_to_int
+from boardy3.database.database_manager import DatabaseManager
+from boardy3.database.image_loader import ImageLoader, DirImageLoader, NetworkImageLoader
+import boardy3.database.models as db_models
+from boardy3.ui.image import ImageUrlInputDialog, ImageWidget
+from boardy3.ui.layout import FlowLayout, clear_layout
+from boardy3.ui.searchbox import SearchBox
+from boardy3.ui.tag import BatchCreateTagsDialog
+from boardy3.ui.toolbar import ToolBar
 
 
 class MainWindow(QMainWindow):

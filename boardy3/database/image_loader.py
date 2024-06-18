@@ -8,8 +8,8 @@ from PyQt6.QtCore import pyqtSignal, QThread
 import requests
 from requests_ratelimiter import LimiterSession
 
-from database.database_manager import DatabaseManager, DatabaseItemExists
-from utils import get_logger
+from boardy3.database.database_manager import DatabaseManager, DatabaseItemExists
+from boardy3.utils import get_logger
 
 
 requests.packages.urllib3.disable_warnings()  # type: ignore

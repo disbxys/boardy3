@@ -18,11 +18,11 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
-from database import column_to_int
-from database.database_manager import DatabaseItemDoesNotExist, DatabaseItemExists, DatabaseManager
-from database.models import Tag
-from ui.layout import FlowLayout, clear_layout, iterate_layout
-from utils import get_logger
+from boardy3.database import column_to_int
+from boardy3.database.database_manager import DatabaseItemDoesNotExist, DatabaseItemExists, DatabaseManager
+from boardy3.database.models import Tag
+from boardy3.ui.layout import FlowLayout, clear_layout, iterate_layout
+from boardy3.utils import get_logger
 
 
 logger = get_logger(__name__)

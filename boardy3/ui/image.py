@@ -14,9 +14,9 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
-from database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
-from database.models import Tag
-from ui.tag import TagsWindow
+from boardy3.database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
+from boardy3.database.models import Tag
+from boardy3.ui.tag import TagsWindow
 
 
 class ImageWidget(QLabel):
