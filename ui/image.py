@@ -65,6 +65,9 @@ class ImageWindow(QMainWindow):
     def __init__(self, db_id: int, image_path: str):
         super().__init__()
 
+        # Shift instantiation position of image window top left
+        self.setGeometry(100, 100, self.width(), self.height())
+
         # Use the image filename as the window title
         self.setWindowTitle(os.path.splitext(os.path.basename(image_path))[0])
 
@@ -87,6 +90,19 @@ class ImageWindow(QMainWindow):
         # self.layout_ = QVBoxLayout()
         self.layout_.addWidget(self.image_widget, alignment=Qt.AlignmentFlag.AlignCenter)
         self.layout_.addWidget(self.tags_panel, stretch=1)
+
+        # Keep window size fixed after creating everything in the window.
+        match self.layout_:
+            case QVBoxLayout():
+                self.setFixedSize(
+                    self.image_widget.pixmap().width()+1,
+                    self.image_widget.pixmap().height() + self.tags_panel.height() + 50
+                )
+            case QHBoxLayout():
+                self.setFixedSize(
+                    self.image_widget.pixmap().width() + self.tags_panel.width() + 50,
+                    self.image_widget.pixmap().height()+1
+                )
 
         self.central_widget.setLayout(self.layout_)
 
