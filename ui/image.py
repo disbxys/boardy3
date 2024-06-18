@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
-from database.database_manager import DatabaseManager
+from database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
 from database.models import Tag
 from ui.tag import TagsWindow
 
@@ -23,7 +23,6 @@ class ImageWidget(QLabel):
     def __init__(
             self,
             db_id: int,
-            image_path: str,
             width: int | None = None,
             height: int | None = None,
             db_manager: DatabaseManager | None = None,
@@ -31,11 +30,17 @@ class ImageWidget(QLabel):
     ):
         super().__init__()
 
-        self.image_path = image_path
+        # Image id from database
         self.db_id = db_id
 
         self.db_manager = db_manager or DatabaseManager()
         self.detached = detached
+
+        # Grab image from database
+        self.image_ = self.db_manager.get_image(self.db_id)
+        if self.image_ is None:
+            raise ValueError(f"Invalid image id: {self.db_id}.")
+        self.image_path = self.db_manager.get_image_path(self.image_.filename)
 
         _pixmap = QPixmap(self.image_path)
         _w = width if width else _pixmap.width()
@@ -75,7 +80,7 @@ class ImageWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         # Display image
-        self.image_widget = ImageWidget(db_id, image_path, 800, 800, detached=True)
+        self.image_widget = ImageWidget(db_id, 800, 800, detached=True)
 
         if self.image_widget.pixmap().width() > self.image_widget.pixmap().height():
             portrait = False

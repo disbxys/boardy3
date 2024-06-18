@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
 
     
     def _add_image_to_layout(self, image: db_models.Image) -> None:
-        image_widget = self._create_image_widget(column_to_int(image.id), image.filename)
+        image_widget = self._create_image_widget(column_to_int(image.id))
         self.images_layout.addWidget(image_widget)
 
 
@@ -254,12 +254,9 @@ class MainWindow(QMainWindow):
 
     def _create_image_widget(
             self,
-            db_id: int,
-            filename: str | Column[str]
+            db_id: int
     ) -> ImageWidget:
-        image_path = self.db_manager.get_image_path(filename)        
-
-        return ImageWidget(db_id, image_path, 250, 250)
+        return ImageWidget(db_id, 250, 250)
     
 
     # Quit the application when the main window is closed
