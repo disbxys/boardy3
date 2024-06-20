@@ -1,7 +1,7 @@
 import os
 import re
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QMouseEvent, QPixmap
 from PyQt6.QtWidgets import (
     QDialog,
@@ -14,12 +14,14 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 
-from boardy3.database.database_manager import DatabaseItemDoesNotExist, DatabaseManager
+from boardy3.database.database_manager import DatabaseManager
 from boardy3.database.models import Tag
 from boardy3.ui.tag import TagsWindow
 
 
 class ImageWidget(QLabel):
+    deleted = pyqtSignal()
+
     def __init__(
             self,
             db_id: int,
@@ -34,7 +36,7 @@ class ImageWidget(QLabel):
         self.db_id = db_id
 
         self.db_manager = db_manager or DatabaseManager()
-        self.detached = detached
+        self.detached = detached    # Is the widget separate from the main window?
 
         # Grab image from database
         self.image_ = self.db_manager.get_image(self.db_id)
@@ -59,14 +61,30 @@ class ImageWidget(QLabel):
             if ev.button() == Qt.MouseButton.LeftButton:
                 """Creates a detached window containing an image. """
                 self.image_window = ImageWindow(self.db_id, self.image_path)
+
+                # This is a little workaround since ImageWidget is used
+                # both for the image gallery and the pop out image windows.
+                self.image_window.deleted.connect(self.on_delete)
+
                 self.image_window.show()
 
     
     def fetch_tags(self) -> list[Tag]:
         return self.db_manager.get_tags_by_image_id(self.db_id)
+    
+
+    def delete_image(self) -> None:
+        self.db_manager.delete_image(self.db_id)
+        # self.deleted.emit()
+    
+
+    def on_delete(self):
+        self.deleted.emit()
 
 
 class ImageWindow(QMainWindow):
+    deleted = pyqtSignal()
+
     def __init__(self, db_id: int, image_path: str):
         super().__init__()
 
@@ -92,9 +110,19 @@ class ImageWindow(QMainWindow):
         # Create a panel to contain tags
         self.tags_panel = TagsWindow(self.image_widget.db_id, portrait=portrait)
 
+        self.delete_button = QPushButton("Delete Image")
+        self.delete_button.clicked.connect(self.delete_image)
+
+        # Create a sub layout to contain the delete button and tags panel
+        self.secondary_layout_ = QVBoxLayout()
+        self.secondary_layout_.addWidget(self.tags_panel, stretch=1)
+        self.secondary_layout_.addWidget(self.delete_button, stretch=1)
+        self.secondary_layout_widget = QWidget()
+        self.secondary_layout_widget.setLayout(self.secondary_layout_)
+
         # self.layout_ = QVBoxLayout()
         self.layout_.addWidget(self.image_widget, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.layout_.addWidget(self.tags_panel, stretch=1)
+        self.layout_.addWidget(self.secondary_layout_widget)
 
         # Keep window size fixed after creating everything in the window.
         match self.layout_:
@@ -114,6 +142,14 @@ class ImageWindow(QMainWindow):
 
     def fetch_tags(self) -> list[Tag]:
         return self.image_widget.fetch_tags()
+    
+
+    def delete_image(self) -> None:
+        self.image_widget.delete_image()
+
+        # Delete the image window
+        self.deleteLater()
+        self.deleted.emit()
 
     
     def mousePressEvent(self, ev: QMouseEvent):

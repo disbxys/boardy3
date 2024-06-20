@@ -267,7 +267,10 @@ class MainWindow(QMainWindow):
             self,
             db_id: int
     ) -> ImageWidget:
-        return ImageWidget(db_id, 250, 250)
+        image_ = ImageWidget(db_id, 250, 250)
+        # Refresh gallery after deleting widget
+        image_.deleted.connect(self.refresh_images)
+        return image_
     
 
     # Quit the application when the main window is closed

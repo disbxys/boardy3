@@ -123,11 +123,6 @@ class TagsWindow(QWidget):
                 )
 
                 if answer == msg_box.StandardButton.Yes:
-                    logger.info(
-                        "Tags deleted from database: {}"\
-                        .format(" ".join([tag.tag_name for tag in checked_tags]))
-                    )
-
                     self.db_manager.delete_tags(
                         [int(tag.tag_id) for tag in checked_tags]
                     )

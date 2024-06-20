@@ -98,6 +98,25 @@ class DatabaseManager:
 
         self.session.add(new_image)
         self.session.commit()
+    
+
+    def delete_image(self, id: int) -> None:
+        image_ = self.get_image(id)
+        if image_ is None:
+            raise DatabaseItemDoesNotExist(f"Image id: {id} does not exist.")
+        
+        # Delete image from database
+        self.session.delete(image_)
+        self.save()
+
+        image_path = self.get_image_path(image_.filename)
+        # By design, the image file should exist if it had existed in the
+        # database unless the image location was tampered with.
+        assert os.path.exists(image_path) == True
+        # Delete physical file
+        os.remove(image_path)
+
+        logger.info(f"Image id deleted from database: {image_.id}")
 
 
     def get_image(self, id: int) -> Optional[Image]:
@@ -258,6 +277,11 @@ class DatabaseManager:
             self.session.delete(tag)
 
         self.save()
+
+        logger.info(
+            "Tags deleted from database: {}"\
+            .format(" ".join([tag.tag_name for tag in tags]))
+        )
 
 
     def save(self):
