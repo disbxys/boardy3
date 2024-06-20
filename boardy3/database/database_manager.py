@@ -262,7 +262,7 @@ class DatabaseManager:
 
         logger.info(
             "Tags deleted from database: {}"\
-            .format(" ".join([tag.tag_name for tag in tags]))
+            .format(" ".join([str(tag.name) for tag in tags]))
         )
 
 

@@ -182,6 +182,7 @@ class TagInsertBox(QWidget):
         self.db_manager = db_manager
         self.image_id = image_id
 
+        # TODO: Add placeholder w/ instructions to split tags by comma
         self.input_box = QLineEdit()
         self.input_box.returnPressed.connect(self.on_return_pressed)
 
@@ -219,26 +220,29 @@ class TagInsertBox(QWidget):
 
     
     def on_return_pressed(self):
+        # Verify image id
         image = self.db_manager.get_image(self.image_id)
         if image is None:
             raise DatabaseItemDoesNotExist(f"Image id <{self.image_id}> does not exist.")
 
-        tag_name = self.input_box.text().strip()
-        tag_name = tag_name.replace(" ", "_")
+        # Parse input into tags
+        tags_input = self.input_box.text().split(",")
+        for tag_name in tags_input:
+            tag_name = re.sub(r"\s", "_", tag_name.strip())
 
-        if tag_name:
-            # Try adding tag to db if new else get tag from db
-            tag = self.db_manager.get_tag_by_name(tag_name)
-            if tag is None:
-                tag = self.db_manager.add_tag(tag_name)
+            if tag_name:    # Skip empty names
+                # Try adding tag to db if new else get tag from db
+                tag = self.db_manager.get_tag_by_name(tag_name)
+                if tag is None:
+                    tag = self.db_manager.add_tag(tag_name)
 
-            tag_newly_added = self.db_manager.add_tag_to_image(tag, column_to_int(image.id))
+                tag_newly_added = self.db_manager.add_tag_to_image(tag, column_to_int(image.id))
 
-            # Clear input box at the end
-            self.input_box.clear()
+                # Clear input box at the end
+                self.input_box.clear()
 
-            if tag_newly_added:
-                self.tag_added.emit()
+                if tag_newly_added:
+                    self.tag_added.emit()
 
 
 class BatchCreateTagsDialog(QDialog):
