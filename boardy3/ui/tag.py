@@ -193,7 +193,7 @@ class TagInsertBox(QWidget):
         # Initialize a Completer Model to pair with QCompleter
         self.completer_model = QStringListModel()
 
-        self.input_box.textChanged.connect(self.featch_and_update_completer)
+        self.input_box.textChanged.connect(self.fetch_and_update_completer)
 
         layout = QHBoxLayout()
         layout.addWidget(self.input_box)
@@ -201,7 +201,7 @@ class TagInsertBox(QWidget):
         self.setLayout(layout)
 
 
-    def featch_and_update_completer(self):
+    def fetch_and_update_completer(self):
         # Remove any trailing whitespace
         search_text = self.input_box.text().strip()
 
