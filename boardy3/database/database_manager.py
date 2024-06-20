@@ -6,30 +6,12 @@ from typing import Optional
 from sqlalchemy import create_engine, Column
 from sqlalchemy.orm import Session
 
+from boardy3.database.exceptions import DatabaseItemDoesNotExist, DatabaseItemExists
 from boardy3.database.models import Base, Image, image_tag, Tag
 from boardy3.utils import get_logger
 
 
 logger = get_logger(__name__)
-
-
-class DatabaseException(Exception):
-    """Base class for database exceptions."""
-    pass
-
-
-class DatabaseItemExists(DatabaseException):
-    """
-    Exception class for when attempting to created an item when it
-    already exists in the database.
-    """
-
-
-class DatabaseItemDoesNotExist(DatabaseException):
-    """
-    Exception class for when attempting to retrieve an item when it
-    does not exist in the database.
-    """
 
 
 class DatabaseManager:
