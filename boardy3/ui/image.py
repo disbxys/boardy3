@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QHBoxLayout,
     QMainWindow,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
     QVBoxLayout,
@@ -145,11 +146,21 @@ class ImageWindow(QMainWindow):
     
 
     def delete_image(self) -> None:
-        self.image_widget.delete_image()
+        msg_box = QMessageBox()
 
-        # Delete the image window
-        self.deleteLater()
-        self.deleted.emit()
+        answer = msg_box.question(
+            self,
+            "Delete Image Confirmation",
+            "Are you sure you want to delete the image? Deleted images cannot be recovered.",
+            msg_box.StandardButton.Yes | msg_box.StandardButton.No
+        )
+
+        if answer == msg_box.StandardButton.Yes:
+            self.image_widget.delete_image()
+
+            # Delete the image window
+            self.deleteLater()
+            self.deleted.emit()
 
     
     def mousePressEvent(self, ev: QMouseEvent):
