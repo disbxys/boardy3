@@ -3,7 +3,7 @@ import os
 import shutil
 from typing import Optional
 
-from sqlalchemy import create_engine, Column
+from sqlalchemy import create_engine, Column, exc
 from sqlalchemy.orm import Session
 
 from boardy3.database.exceptions import DatabaseItemDoesNotExist, DatabaseItemExists
@@ -65,21 +65,29 @@ class DatabaseManager:
         # Create new Image record
         new_image = Image(filename=new_filename)
 
-        if not tags: tags = list()
-        for tag_name in tags:
-            tag = self.session\
-                .query(Tag)\
-                .filter_by(name=tag_name)\
-                .first()
+        try:
+            if not tags: tags = list()
+            for tag_name in tags:
+                tag = self.session\
+                    .query(Tag)\
+                    .filter_by(name=tag_name)\
+                    .first()
 
-            if not tag:
-                tag = Tag(name=tag_name)
-                self.session.add(tag)
+                if not tag:
+                    tag = Tag(name=tag_name)
+                    self.session.add(tag)
 
-            new_image.tags.append(tag)
+                new_image.tags.append(tag)
 
-        self.session.add(new_image)
-        self.session.commit()
+            self.session.add(new_image)
+            self.session.commit()
+        except exc.IntegrityError as e:
+            # Delete image file since it was not added to the db.
+            if os.path.exists(save_path):
+                os.remove(save_path)
+
+            # Re-raise exception
+            raise e
     
 
     def delete_image(self, id: int) -> None:
