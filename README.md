@@ -1,4 +1,6 @@
 # Boardy3
+### Important Note: The app is unstable and is subject to breaking changes.
+
 Boardy3 is an alternative version of [Boardy2](https://github.com/disbxys/boardy2) that uses PyQt6 as the primary framework to display your image collection in a gallery.
 
 [![release](https://github.com/disbxys/boardy3/actions/workflows/release.yml/badge.svg)](https://github.com/disbxys/boardy3/actions/workflows/release.yml)
@@ -73,6 +75,9 @@ A: The reason is ultimately due to how flask operates sqlalchemy. I would have t
 
 Q: Which do you recommend I use?\
 A: If you want to host your images on your local network, then go with Boardy2. If you want to only have it on your computer, then use Boardy3. Ultimately, <strong>the choice is your's</strong>.
+
+Q: WHY IS THERE CODE??? MAKE A F\*\*\*\*\*\* .EXE FILE and ... \
+A: I'm too dumb to make figure out how to make a proper exe distribution file.
 
 
 ## Related Projects
