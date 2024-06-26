@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSlot, Qt, QTimer, QStringListModel
+from PyQt6.QtCore import Qt, QStringListModel
 from PyQt6.QtWidgets import (
     QCompleter,
     QHBoxLayout,

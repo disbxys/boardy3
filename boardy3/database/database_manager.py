@@ -33,7 +33,7 @@ class DatabaseManager:
         os.makedirs(self.image_dir_path, exist_ok=True)
 
     
-    def add_image(self, filepath: str, tags=None) -> None:
+    def add_image(self, filepath: str, tags: list[str] | None = None) -> None:
         # Calculate file hash to use as new filename
         image_hash = self._sha256_hash_image_data(filepath)
         

@@ -1,14 +1,12 @@
 
 import re
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QStringListModel
-from PyQt6.QtGui import QEnterEvent
 from PyQt6.QtWidgets import (
     QCheckBox,
     QCompleter,
     QDialog,
     QHBoxLayout,
     QLabel,
-    QLayout,
     QLineEdit,
     QMessageBox,
     QPlainTextEdit,

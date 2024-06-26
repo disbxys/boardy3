@@ -1,3 +1,4 @@
+from typing import TypeAlias
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -40,3 +41,6 @@ class Tag(Base):
 
     def __repr__(self) -> str:
         return f"Tag <{self.name}>"
+
+
+DatabaseItem: TypeAlias = Image | Tag
