@@ -36,7 +36,7 @@ class ImageLoader(QThread):
         for i, file_path in enumerate(self.file_paths):
             try:
                 if is_image(file_path):
-                    self.db_manager.add_image(file_path, tags=["general"])
+                    self.db_manager.add_image(file_path)
                     logger.info(f"New image added {file_path}.")
             except DatabaseItemExists:
                 # Skip items that already exist in the database
