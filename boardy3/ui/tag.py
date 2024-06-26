@@ -184,6 +184,7 @@ class TagInsertBox(QWidget):
 
         # TODO: Add placeholder w/ instructions to split tags by comma
         self.input_box = QLineEdit()
+        self.input_box.setPlaceholderText("Separate each tag with a comma...")
         self.input_box.returnPressed.connect(self.on_return_pressed)
 
         # Create a QCompleter for input box
