@@ -1,4 +1,3 @@
-
 import re
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QStringListModel
 from PyQt6.QtWidgets import (
@@ -137,11 +136,6 @@ class TagsWindow(QWidget):
                 )
 
                 if answer == msg_box.StandardButton.Yes:
-                    logger.info(
-                        "Tags removed from image: {}"\
-                        .format(" ".join([tag.tag_name for tag in checked_tags]))
-                    )
-                    
                     self.db_manager.remove_tags_from_image(
                         [int(tag.tag_id) for tag in checked_tags],
                         self.image_id

@@ -251,6 +251,13 @@ class DatabaseManager:
         if image and len(tags) > 0:
             image.remove_tags(tags)
 
+            logger.info(
+                "Tags removed from image id <{}>: {}".format(
+                    image.id,
+                    " ".join([str(tag.name) for tag in tags])
+                )
+            )
+
             self.save()
 
 

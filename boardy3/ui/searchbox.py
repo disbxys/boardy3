@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 
 from boardy3.database.database_manager import DatabaseManager
 
+
 class SearchBox(QWidget):
     def __init__(self, db_manager: DatabaseManager) -> None:
         super().__init__()
