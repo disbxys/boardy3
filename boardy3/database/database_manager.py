@@ -318,7 +318,7 @@ class DatabaseManager:
 
 
     def delete_all_tags(self) -> None:
-        for tag_ in self.search_tags(""):
+        for tag_ in self.search_tags():
             self.delete_tag(tag_.id)
         self.save()
 
@@ -327,11 +327,12 @@ class DatabaseManager:
         self.session.commit()
 
 
-    def search_tags(self, keyword: str) -> list[Tag]:
-        return self.session.query(Tag)\
-            .filter(Tag.name.ilike(f"{keyword}%"))\
-            .limit(10)\
-            .all()
+    def search_tags(self, keyword: str | None = None) -> list[Tag]:
+        q =  self.session.query(Tag)
+        if isinstance(keyword, str):
+            q = q.filter(Tag.name.ilike(f"{keyword}%"))\
+        
+        return q.limit(10).all()
 
 
     def get_image_path(self, filename: str | Column[str]) -> str:
