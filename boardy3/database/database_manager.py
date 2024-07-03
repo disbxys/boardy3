@@ -123,7 +123,8 @@ class DatabaseManager:
 
 
     def delete_all_images(self) -> None:
-        self.session.query(Image).delete()
+        for image_ in self.get_all_images():
+            self.delete_image(image_.id)
         self.save()
 
 
