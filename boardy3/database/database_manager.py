@@ -296,18 +296,24 @@ class DatabaseManager:
     
 
     def delete_tags(self, tag_ids: list[int | Column[int]]):
-        tags = self.session.query(Tag)\
-            .filter(Tag.id.in_(tag_ids))\
-            .all()
-        
-        for tag in tags:
-            self.session.delete(tag)
+        deleted_tags = []
+        for tag_id in tag_ids:
+            tag_ = self.session.query(Tag)\
+                .filter(Tag.id == tag_id)\
+                .first()
+            
+            if tag_ is None:
+                raise DatabaseItemDoesNotExist(f"Tag id <{tag_id}> does not exist.")
+            
+            self.session.delete(tag_)
+            deleted_tags.append(tag_)
 
+        # Call save after processing all tag ids.
         if not self.is_test: self.save()
 
         logger.info(
             "Tags deleted from database: {}"\
-            .format(" ".join([str(tag.name) for tag in tags]))
+            .format(" ".join([str(t.name) for t in deleted_tags]))
         )
 
 
