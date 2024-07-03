@@ -28,3 +28,15 @@ class DatabaseItemDoesNotExist(DatabaseException):
     Exception class for when attempting to retrieve an item when it
     does not exist in the database.
     """
+
+
+class DatabaseInvalidFile(DatabaseException):
+    """
+    Exception class for when attempting to access a file that
+    does not exist.
+
+    Note that this is not meant to be called if the item already
+    exists or if the file format is invalid. Invalid file formats
+    are handled silently and DatabaseItemExists handles already
+    existing items.
+    """

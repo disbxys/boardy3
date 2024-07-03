@@ -6,7 +6,7 @@ from typing import Optional
 from sqlalchemy import create_engine, Column, exc
 from sqlalchemy.orm import Session
 
-from boardy3.database.exceptions import DatabaseItemDoesNotExist, DatabaseItemExists
+from boardy3.database.exceptions import DatabaseInvalidFile, DatabaseItemDoesNotExist, DatabaseItemExists
 from boardy3.database.models import Base, Image, image_tag, Tag
 from boardy3.utils import get_logger
 
@@ -17,25 +17,38 @@ logger = get_logger(__name__)
 class DatabaseManager:
     DEFAULT_PAGE_SIZE = 20
 
-    def __init__(self) -> None:
+    def __init__(self, is_test=False) -> None:
         db_instance_dirpath = "instance"
         os.makedirs(db_instance_dirpath, exist_ok=True)
 
-        self.engine = create_engine(f"sqlite:///{db_instance_dirpath}/image_database.db", echo=False)
+        # If in testing context
+        self.is_test = is_test
+
+        if self.is_test:
+            self.engine = create_engine(f"sqlite:///{db_instance_dirpath}/test_image_database.db", echo=False)
+            self.image_dir_path = os.path.join(
+                os.getcwd(), "tests", "db", "image_files"
+            )
+            os.makedirs(self.image_dir_path, exist_ok=True)
+        else:
+            self.engine = create_engine(f"sqlite:///{db_instance_dirpath}/image_database.db", echo=False)
+
+            self.image_dir_path = os.path.join(
+                os.getcwd(), "db", "image_files"
+            )
+            os.makedirs(self.image_dir_path, exist_ok=True)
 
         Base.metadata.create_all(self.engine)
 
         self.session = Session(self.engine)
 
-        self.image_dir_path = os.path.join(
-            os.getcwd(), "db", "image_files"
-        )
-        os.makedirs(self.image_dir_path, exist_ok=True)
-
     
     def add_image(self, filepath: str, tags: list[str] | None = None) -> None:
+        if not os.path.exists(filepath):
+            raise DatabaseInvalidFile(f"File <{filepath}> does not exists.")
+
         # Calculate file hash to use as new filename
-        image_hash = self._sha256_hash_image_data(filepath)
+        image_hash = self.sha256_hash_image_data(filepath)
         
         base_filename = os.path.basename(filepath)  # Strip parents
         file_stem, file_ext = os.path.splitext(base_filename)
@@ -60,7 +73,7 @@ class DatabaseManager:
         
         # Save image to filesystem
         os.makedirs(image_dir, exist_ok=True)
-        shutil.copy(filepath, save_path)
+        shutil.copy2(filepath, save_path)
 
         # Create new Image record
         new_image = Image(filename=new_filename)
@@ -97,7 +110,7 @@ class DatabaseManager:
         
         # Delete image from database
         self.session.delete(image_)
-        self.save()
+        if not self.is_test: self.save()
 
         image_path = self.get_image_path(image_.filename)
         # By design, the image file should exist if it had existed in the
@@ -107,6 +120,11 @@ class DatabaseManager:
         os.remove(image_path)
 
         logger.info(f"Image id deleted from database: {image_.id}")
+
+
+    def delete_all_images(self) -> None:
+        self.session.query(Image).delete()
+        self.save()
 
 
     def get_image(self, id: int) -> Optional[Image]:
@@ -204,7 +222,7 @@ class DatabaseManager:
         tag = Tag(name=name)
 
         self.session.add(tag)
-        self.save()
+        if not self.is_test: self.save()
 
         # Attempt to grab newly created tag
         new_tag = self.get_tag_by_name(tag.name)
@@ -228,7 +246,7 @@ class DatabaseManager:
                 image.tags.append(tag)
                 logger.info(f"Added tag <{tag.name}> to image <{image.id}>.")
 
-                self.save()
+                if not self.is_test: self.save()
                 return True
             else:
                 logger.info(f"Tag <{tag.name}> already exists for image <{image_id}>.")
@@ -258,7 +276,7 @@ class DatabaseManager:
                 )
             )
 
-            self.save()
+            if not self.is_test: self.save()
 
 
     def delete_tag(self, tag_id: int):
@@ -273,12 +291,17 @@ class DatabaseManager:
         for tag in tags:
             self.session.delete(tag)
 
-        self.save()
+        if not self.is_test: self.save()
 
         logger.info(
             "Tags deleted from database: {}"\
             .format(" ".join([str(tag.name) for tag in tags]))
         )
+
+
+    def delete_all_tags(self) -> None:
+        self.session.query(Tag).delete()
+        self.save()
 
 
     def save(self):
@@ -307,7 +330,7 @@ class DatabaseManager:
         ))
     
 
-    def _sha256_hash_image_data(self, filepath: str) -> str:
+    def sha256_hash_image_data(self, filepath: str) -> str:
         with open(filepath, "rb") as infile:
             return hashlib.sha256(infile.read()).hexdigest()
 
