@@ -25,13 +25,16 @@ class DatabaseManager:
         self.is_test = is_test
 
         if self.is_test:
-            self.engine = create_engine(f"sqlite:///{db_instance_dirpath}/test_image_database.db", echo=False)
+            self.db_filepath = f"{db_instance_dirpath}/test_image_database.db"
+            self.engine = create_engine(f"sqlite:///{self.db_filepath}", echo=False)
+
             self.image_dir_path = os.path.join(
                 os.getcwd(), "tests", "db", "image_files"
             )
             os.makedirs(self.image_dir_path, exist_ok=True)
         else:
-            self.engine = create_engine(f"sqlite:///{db_instance_dirpath}/image_database.db", echo=False)
+            self.db_filepath = f"{db_instance_dirpath}/image_database.db"
+            self.engine = create_engine(f"sqlite:///{self.db_filepath}", echo=False)
 
             self.image_dir_path = os.path.join(
                 os.getcwd(), "db", "image_files"
@@ -309,7 +312,8 @@ class DatabaseManager:
 
 
     def delete_all_tags(self) -> None:
-        self.session.query(Tag).delete()
+        for tag_ in self.search_tags(""):
+            self.delete_tag(tag_.id)
         self.save()
 
 
