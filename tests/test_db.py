@@ -4,6 +4,7 @@ import shutil
 import unittest
 
 from boardy3.database.database_manager import DatabaseManager
+import boardy3.database.exceptions as db_exc
 from boardy3.database.models import Image
 
 
@@ -38,6 +39,40 @@ class TestDB(unittest.TestCase):
         image_hash = self.db_manager.sha256_hash_image_data(db_image_path)
         db_image_hash = self.db_manager.sha256_hash_image_data(db_image_path)
         self.assertEqual(image_hash, db_image_hash)
+
+    
+    def test_delete_image(self):
+        for image_path in self.test_images:
+            self.db_manager.add_image(image_path)
+
+        # Grab random image record from db
+        db_image = random.choice(self.db_manager.get_all_images())
+
+        self.db_manager.delete_image(db_image.id)
+
+        self.assertIsNone(self.db_manager.get_image(db_image.id))
+
+    
+    def test_delete_all_images(self):
+        self.db_manager.delete_all_images()
+
+        self.assertEqual(
+            len(self.db_manager.get_all_images()),
+            0,
+            "Not all images have been deleted from the database."
+        )
+
+        image_files = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(self.db_manager.image_dir_path)
+            for filename in filenames
+        ]
+
+        self.assertEqual(
+            len(image_files),
+            0,
+            "Not all image files have been deleted."
+        )
     
 
     def tearDown(self) -> None:
@@ -46,6 +81,7 @@ class TestDB(unittest.TestCase):
         self.db_manager.delete_all_images()
 
         # Clear all images from image directory
-        shutil.rmtree(self.db_manager.image_dir_path)
+        if os.path.exists(self.db_manager.image_dir_path):
+            shutil.rmtree(self.db_manager.image_dir_path)
 
         return super().tearDown()
