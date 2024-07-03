@@ -103,7 +103,7 @@ class DatabaseManager:
             raise e
     
 
-    def delete_image(self, id: int) -> None:
+    def delete_image(self, id: int | Column[int]) -> None:
         image_ = self.get_image(id)
         if image_ is None:
             raise DatabaseItemDoesNotExist(f"Image id: {id} does not exist.")
@@ -127,7 +127,7 @@ class DatabaseManager:
         self.save()
 
 
-    def get_image(self, id: int) -> Optional[Image]:
+    def get_image(self, id: int | Column[int]) -> Optional[Image]:
         return self.session.query(Image).filter_by(id=id).first()
 
 
@@ -234,7 +234,7 @@ class DatabaseManager:
         return self.get_tag_by_name(name)
     
 
-    def add_tag_to_image(self, tag: Tag, image_id: int) -> bool:
+    def add_tag_to_image(self, tag: Tag, image_id: int | Column[int]) -> bool:
         # Verify image id
         if image:= self.get_image(image_id):
             # Verify the tag exists
@@ -255,11 +255,19 @@ class DatabaseManager:
         raise DatabaseItemDoesNotExist(f"Image id <{image_id}> does not exist.")
 
     
-    def remove_tag_from_image(self, tag_id: int, image_id: int):
+    def remove_tag_from_image(
+            self,
+            tag_id: int | Column[int],
+            image_id: int | Column[int]
+    ):
         self.remove_tags_from_image([tag_id], image_id)
 
     
-    def remove_tags_from_image(self, tag_ids: list[int], image_id: int):
+    def remove_tags_from_image(
+            self,
+            tag_ids: list[int | Column[int]],
+            image_id: int | Column[int]
+    ):
         tags = self.session.query(Tag)\
             .filter(Tag.id.in_(tag_ids))\
             .all()
@@ -279,11 +287,11 @@ class DatabaseManager:
             if not self.is_test: self.save()
 
 
-    def delete_tag(self, tag_id: int):
+    def delete_tag(self, tag_id: int | Column[int]):
         self.delete_tags([tag_id])
     
 
-    def delete_tags(self, tag_ids: list[int]):
+    def delete_tags(self, tag_ids: list[int | Column[int]]):
         tags = self.session.query(Tag)\
             .filter(Tag.id.in_(tag_ids))\
             .all()
