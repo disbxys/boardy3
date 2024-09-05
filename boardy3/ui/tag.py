@@ -100,7 +100,9 @@ class TagsWindow(QWidget):
         if self.tags_list_layout.count() > 0:
             clear_layout(self.tags_list_layout)
 
-        for tag in self.db_manager.get_tags_by_image_id(self.image_id):
+        tags = self.db_manager.get_tags_by_image_id(self.image_id)
+        tags.sort(key=lambda x: str(x.name))    # First sort tags alphabetically
+        for tag in tags:
             self.tags_list_layout.addWidget(TagWidget(tag))
 
         
