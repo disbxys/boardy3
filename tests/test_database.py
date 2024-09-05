@@ -8,7 +8,7 @@ from boardy3.database.database_manager import DatabaseManager
 import boardy3.database.exceptions as db_exc
 
 
-class TestDB(unittest.TestCase):
+class TestDatabase(unittest.TestCase):
     
     def setUp(self) -> None:
         # Disable logging during testing
@@ -19,6 +19,12 @@ class TestDB(unittest.TestCase):
         self.test_images = [
             os.path.join(os.getcwd(), "tests/static/images", "test_image1.jpeg"),
             os.path.join(os.getcwd(), "tests/static/images", "test_image2.jpg")
+        ]
+
+        self.test_videos = [
+            os.path.join(os.getcwd(), "tests/static/videos", "stock_video1.mp4"),
+            os.path.join(os.getcwd(), "tests/static/videos", "stock_video2.webm"),
+            os.path.join(os.getcwd(), "tests/static/videos", "stock_video2.mp4")
         ]
 
         return super().setUp()
@@ -45,11 +51,14 @@ class TestDB(unittest.TestCase):
 
     
     def test_delete_image(self):
-        for image_path in self.test_images:
-            self.db_manager.add_image(image_path)
+        # Get a random test image
+        _image = random.choice(self.test_images)
 
-        # Grab random image record from db
-        db_image = random.choice(self.db_manager.get_all_images())
+        # Add image to database
+        self.db_manager.add_image(_image)
+
+        # Grab newly added image
+        db_image = self.db_manager.get_all_images(newest_first=True)[0]
 
         self.db_manager.delete_image(db_image.id)
 
@@ -65,17 +74,73 @@ class TestDB(unittest.TestCase):
             "Not all images have been deleted from the database."
         )
 
+        # Test all image files have been deleted
         image_files = [
             os.path.join(dirpath, filename)
             for dirpath, _, filenames in os.walk(self.db_manager.image_dir_path)
             for filename in filenames
         ]
-
         self.assertEqual(
             len(image_files),
             0,
             "Not all image files have been deleted."
         )
+
+        # Test all thumbnails have been deleted
+        thumbnail_files = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(self.db_manager.thumbnail_dir_path)
+            for filename in filenames
+        ]
+        self.assertEqual(
+            len(thumbnail_files),
+            0,
+            "Not all image files have been deleted."
+        )
+
+    
+    def test_insert_video(self):
+        # Get a random test video
+        _video = random.choice(self.test_videos)
+
+        # Add video to database
+        self.db_manager.add_image(_video, is_video=True)
+
+        # Grab newly added video
+        db_video = self.db_manager.get_all_images(newest_first=True)[0]
+        db_video_path = self.db_manager.get_image_path(db_video.filename)
+
+        # Test video in database has a copy of the video in image directory
+        self.assertTrue(os.path.exists(db_video_path))
+
+        # Test image hash matches db image hash
+        video_hash = self.db_manager.sha256_hash_image_data(db_video_path)
+        db_video_hash = self.db_manager.sha256_hash_image_data(db_video_path)
+        self.assertEqual(video_hash, db_video_hash)
+
+        # Test if thumbnail has been created
+        thumbnail_path = self.db_manager.get_thumbnail_path(str(db_video.filename))
+        self.assertTrue(os.path.exists(thumbnail_path))
+    
+
+    def test_delete_video(self):
+        # Get a random test video
+        _video = random.choice(self.test_videos)
+
+        # Add video to database
+        self.db_manager.add_image(_video, is_video=True)
+
+        # Grab newly added video
+        db_video = self.db_manager.get_all_images(newest_first=True)[0]
+
+        # Delete video from database
+        self.db_manager.delete_image(db_video.id)
+
+        self.assertIsNone(self.db_manager.get_image(db_video.id))
+
+        if db_video.is_video is True:
+            thumbnail_path = self.db_manager.get_thumbnail_path(str(db_video.filename))
+            self.assertFalse(os.path.exists(thumbnail_path))
 
     
     def test_add_tag(self):

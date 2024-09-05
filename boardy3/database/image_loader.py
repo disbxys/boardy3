@@ -38,6 +38,9 @@ class ImageLoader(QThread):
                 if is_image(file_path):
                     self.db_manager.add_image(file_path)
                     logger.info(f"New image added {file_path}.")
+                elif is_video(file_path):
+                    self.db_manager.add_image(file_path, is_video=True)
+                    logger.info(f"New video added {file_path}.")
             except DatabaseItemExists:
                 # Skip items that already exist in the database
                 logger.debug(f"Image <{file_path}> already exists.")
@@ -178,6 +181,15 @@ def is_image(file_path: str) -> bool:
     try:
         mtype = magic.from_file(file_path, mime=True)
         return mtype.startswith("image/")
+    except UnicodeDecodeError:
+        # This should come from the python magic lib
+        return False
+
+
+def is_video(file_path: str) -> bool:
+    try:
+        mtype = magic.from_file(file_path, mime=True)
+        return mtype.startswith("video/")
     except UnicodeDecodeError:
         # This should come from the python magic lib
         return False

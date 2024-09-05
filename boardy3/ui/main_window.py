@@ -2,11 +2,12 @@ import os
 from typing import Sequence
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QCloseEvent
+from PyQt6.QtGui import QAction, QCloseEvent, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
     QMainWindow,
+    QMenu,
     QProgressDialog,
     QPushButton,
     QScrollArea,
@@ -41,21 +42,9 @@ class MainWindow(QMainWindow):
         self.scroll_widget = QWidget(self.scroll_area)
         self.images_layout = FlowLayout(self.scroll_widget)
 
-        # Button for importing multiple images
-        upload_images_button = QPushButton("Import Images", self)
-        upload_images_button.clicked.connect(self.upload_images)
-
-        # Button for importing multiple images from urls
-        upload_web_images_button = QPushButton("Import Images (Web)", self)
-        upload_web_images_button.clicked.connect(self.upload_web_images)
-
-        # Button for recursively importing images from a selected directory
-        upload_image_dir_button = QPushButton("Import Folder (Recursive)", self)
-        upload_image_dir_button.clicked.connect(self.upload_images_from_dir)
-
-        # Button for batch creating tags
-        batch_create_tags_button = QPushButton("Create Tag(s)", self)
-        batch_create_tags_button.clicked.connect(self.batch_create_tags)
+        # 
+        self._create_actions()
+        self._create_menu_bar()
 
         self.toolbar = ToolBar(db_manager)
         self.toolbar.page_updated.connect(self.refresh_images)
@@ -67,10 +56,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.toolbar)
         layout.addWidget(self.searchbox)
         layout.addWidget(self.scroll_area)
-        layout.addWidget(upload_images_button)
-        layout.addWidget(upload_web_images_button)
-        layout.addWidget(upload_image_dir_button)
-        layout.addWidget(batch_create_tags_button)
 
         # central_widget = QWidget()
         self.central_widget.setLayout(layout)
@@ -86,6 +71,38 @@ class MainWindow(QMainWindow):
 
         # Show all images on startup
         self.refresh_images()
+    
+
+    def _create_actions(self) -> None:
+        self.import_action = QAction("Import Image(s)", self)
+        self.import_action.triggered.connect(self.upload_images)
+        self.import_action.setShortcut(QKeySequence("Ctrl+K"))
+
+        self.web_import_action = QAction("Import from Web", self)
+        self.web_import_action.triggered.connect(self.upload_web_images)
+        self.web_import_action.setShortcut(QKeySequence("Ctrl+W"))
+
+        self.import_dir_action = QAction("Import Folder", self)
+        self.import_dir_action.triggered.connect(self.upload_images_from_dir)
+        self.import_dir_action.setShortcut(QKeySequence("Ctrl+Shift+K"))
+
+        self.batch_create_tags_action = QAction("Create Tags", self)
+        self.batch_create_tags_action.triggered.connect(self.batch_create_tags)
+        self.batch_create_tags_action.setShortcut(QKeySequence("Ctrl+B"))
+
+
+    def _create_menu_bar(self) -> None:
+        menu_bar = self.menuBar()
+        menu_bar.setNativeMenuBar(False)
+
+        # Import Menu
+        import_menu = menu_bar.addMenu("File")
+        import_menu.addAction(self.import_action)
+        import_menu.addAction(self.web_import_action)
+        import_menu.addAction(self.import_dir_action)
+        import_menu.addAction(self.batch_create_tags_action)
+
+        self.setMenuBar(menu_bar)
 
     
     def upload_images(self) -> None:
