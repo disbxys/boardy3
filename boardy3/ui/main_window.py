@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
         self.scroll_widget = QWidget(self.scroll_area)
         self.images_layout = FlowLayout(self.scroll_widget)
 
-        # 
+        # Define menu area and actions
         self._create_actions()
         self._create_menu_bar()
 
@@ -76,12 +76,19 @@ class MainWindow(QMainWindow):
     def _create_actions(self) -> None:
         self.import_action = QAction("&Import Image(s)", self)
         self.import_action.triggered.connect(self.upload_images)
+        self.import_action.setShortcut(QKeySequence("Ctrl+N"))
+        
         self.web_import_action = QAction("&Import from Web", self)
         self.web_import_action.triggered.connect(self.upload_web_images)
+        self.web_import_action.setShortcut(QKeySequence("Ctrl+M"))
+
         self.import_dir_action = QAction("&Import Folder", self)
         self.import_dir_action.triggered.connect(self.upload_images_from_dir)
+        self.import_dir_action.setShortcut(QKeySequence("Ctrl+Shift+N"))
+
         self.batch_create_tags_action = QAction("&Create Tags", self)
         self.batch_create_tags_action.triggered.connect(self.batch_create_tags)
+        self.batch_create_tags_action.setShortcut(QKeySequence("Ctrl+B"))
 
 
     def _create_menu_bar(self) -> None:
