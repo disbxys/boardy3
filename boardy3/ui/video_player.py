@@ -74,11 +74,17 @@ class VideoPlayerWidget(QWidget):
         self.stop_button = QPushButton("Stop")
         self.stop_button.clicked.connect(self.stop_video)
 
+        # Define media controls widget
+        self.media_control_widget = QWidget()
+        self.media_control_layout = QHBoxLayout()
+        self.media_control_layout.addWidget(self.play_button)
+        self.media_control_layout.addWidget(self.stop_button)
+        self.media_control_widget.setLayout(self.media_control_layout)
+
         self.resize_video_widget()
 
         self.layout_.addWidget(self.video_container)
-        self.layout_.addWidget(self.play_button)
-        self.layout_.addWidget(self.stop_button)
+        self.layout_.addWidget(self.media_control_widget)
 
         self.setLayout(self.layout_)
 
