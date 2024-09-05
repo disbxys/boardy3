@@ -111,7 +111,9 @@ class MainWindow(QMainWindow):
             self,
             "Open Image",
             "",
-            "Image Files (*.bmp *.gif *.jpeg *.jpg *.png *.webp);;All Files (*)"
+            "Image Files (*.bmp *.gif *.jpeg *.jpg *.png *.webp);;"\
+                "Video Files (*.mp4 *.mkv *.webm *.flv *.vob *.ogg *.gifv *.avi *.mov);;"\
+                "All Files (*)"
         )
 
         if file_paths:

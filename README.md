@@ -46,11 +46,27 @@ Boardy3 by default supports the following image formats:
 - png
 - webp
 
-Most other image formats are also supported. If you cannot find the image you're looking for, try changing the file filter from **Image Files** to **All Files (*)**.
+The following video formats are supported by default:
+- mp4
+- mkv
+- webm
+- flv
+- vob
+- ogg
+- gifv
+- avi
+- mov
+
+Most other image and video formats are also supported. If you cannot find the image or video you're looking for, try changing the file filter from **Image Files** to **All Files (*)**.
 
 ![Changing the file filter](static/images/file_filter_demo.png)
 
 ## Migrating to Boardy2
+> [!NOTE]
+> Due to recent changes to Boardy2, it is currently not recommended to transfer the database file to Boardy3 directly. You can still migrate the images/videos manually since Boardy3 is better at handling larger imports.
+
+### ** OLD
+
 If you want switch to hosting your media on a web app, you can migrate your data to [Boardy2](https://github.com/disbxys/boardy2).
 
 First clone the repo and cd into the directory where the repo is located.
