@@ -40,3 +40,12 @@ class DatabaseInvalidFile(DatabaseException):
     are handled silently and DatabaseItemExists handles already
     existing items.
     """
+
+
+class ThumbnailCreationException(DatabaseException):
+    """
+    Exception class for failure to create thumbnail.
+
+    This is an exception meant to be raised when a thumbnail
+    fails to be generated for a video.
+    """

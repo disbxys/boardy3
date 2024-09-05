@@ -3,7 +3,7 @@ import random
 import os
 import unittest
 
-from boardy3.database.image_loader import is_image
+from boardy3.database.image_loader import is_image, is_video
 
 
 class TestMediaFile(unittest.TestCase):
@@ -45,4 +45,19 @@ class TestMediaFile(unittest.TestCase):
     def test_is_not_image(self):
         self.assertTrue(all(
             is_image(test_video)==False for test_video in self.test_videos
+        ))
+
+    
+    def test_is_video(self):
+        self.assertTrue(all(
+            is_video(test_video) for test_video in self.test_videos
+        ))
+
+
+    def test_is_not_video(self):
+        self.assertTrue(all(
+            is_video(test_image)==False for test_image in self.test_images_with_correct_extensions
+        ))
+        self.assertTrue(all(
+            is_video(test_image)==False for test_image in self.test_images_with_incorrect_extensions
         ))

@@ -3,10 +3,11 @@ import os
 import shutil
 from typing import Optional
 
+import cv2
 from sqlalchemy import create_engine, Column, exc
 from sqlalchemy.orm import Session
 
-from boardy3.database.exceptions import DatabaseInvalidFile, DatabaseItemDoesNotExist, DatabaseItemExists
+from boardy3.database.exceptions import DatabaseInvalidFile, DatabaseItemDoesNotExist, DatabaseItemExists, ThumbnailCreationException
 from boardy3.database.models import Base, Image, image_tag, Tag
 from boardy3.utils import get_logger
 
@@ -31,6 +32,9 @@ class DatabaseManager:
             self.image_dir_path = os.path.join(
                 os.getcwd(), "tests", "db", "image_files"
             )
+            self.thumbnail_dir_path = os.path.join(
+                os.getcwd(), "tests", "db", "thumbnails"
+            )
             os.makedirs(self.image_dir_path, exist_ok=True)
         else:
             self.db_filepath = f"{db_instance_dirpath}/image_database.db"
@@ -39,6 +43,9 @@ class DatabaseManager:
             self.image_dir_path = os.path.join(
                 os.getcwd(), "db", "image_files"
             )
+            self.thumbnail_dir_path = os.path.join(
+                os.getcwd(), "db", "thumbnails"
+            )
             os.makedirs(self.image_dir_path, exist_ok=True)
 
         Base.metadata.create_all(self.engine)
@@ -46,7 +53,12 @@ class DatabaseManager:
         self.session = Session(self.engine)
 
     
-    def add_image(self, filepath: str, tags: list[str] | None = None) -> None:
+    def add_image(
+            self,
+            filepath: str,
+            tags: list[str] | None = None,
+            is_video: bool = False
+    ) -> None:
         if not os.path.exists(filepath):
             raise DatabaseInvalidFile(f"File <{filepath}> does not exists.")
 
@@ -78,8 +90,15 @@ class DatabaseManager:
         os.makedirs(image_dir, exist_ok=True)
         shutil.copy2(filepath, save_path)
 
+        if is_video:
+            # Genereate thumbnail
+            thumbnail_dir = self.get_thumbnail_dir(new_filename)
+            os.makedirs(thumbnail_dir, exist_ok=True)
+            thumbnail_path = self.get_thumbnail_path(new_filename)
+            create_thumbnail(save_path, thumbnail_path)
+
         # Create new Image record
-        new_image = Image(filename=new_filename)
+        new_image = Image(filename=new_filename, is_video=is_video)
 
         try:
             if not tags: tags = list()
@@ -121,8 +140,13 @@ class DatabaseManager:
         assert os.path.exists(image_path) == True
         # Delete physical file
         os.remove(image_path)
-
         logger.info(f"Image id deleted from database: {image_.id}")
+
+        if image_.is_video is True:
+            thumbnail_path = self.get_thumbnail_path(str(image_.filename))
+            if os.path.exists(thumbnail_path):
+                os.remove(thumbnail_path)
+                logger.info(f"Thumbnail for image id <{image_.id}> deleted from database")
 
 
     def delete_all_images(self) -> None:
@@ -208,6 +232,32 @@ class DatabaseManager:
         return self.session.query(Tag)\
             .filter_by(name=name)\
             .first()
+    
+
+    def add_video(self, filepath: str, tags: list[str] | None = None) -> None:
+        """
+        Same as add_image() but also create thumbnail for video (reference
+        ChatGPT thread).
+        """
+        raise NotImplementedError()
+    
+
+    def delete_video(self, id: int | Column[int]) -> None:
+        """Same as delete_image() but also delete video thumbnail"""
+        raise NotImplementedError()
+        
+
+    def delete_all_videos(self) -> None:
+        """delete_image() but for all videos"""
+        raise NotImplementedError()
+    
+
+    def get_all_videos(self) -> list[Image]:
+        raise NotImplementedError()
+
+
+    def get_video_count(self) -> int:
+        raise NotImplementedError()
     
 
     def add_tag(self, name: str) -> Tag:
@@ -353,6 +403,46 @@ class DatabaseManager:
     def sha256_hash_image_data(self, filepath: str) -> str:
         with open(filepath, "rb") as infile:
             return hashlib.sha256(infile.read()).hexdigest()
+
+    
+    def get_thumbnail_path(self, filename: str | Column[str]) -> str:
+        filename = str(filename)
+        # Extract hash from filename and use it with jpg
+        thumbnail_filename = f"sample_{os.path.splitext(filename)[0]}.jpg"
+        return os.path.join(
+            self.get_thumbnail_dir(filename),
+            thumbnail_filename
+        )
+    
+    
+    def get_thumbnail_dir(self, filename: str) -> str:
+        return os.path.normpath(os.path.join(
+            self.thumbnail_dir_path,
+            f"{filename[:2]}/{filename[2:4]}"
+        ))
+
+
+def create_thumbnail(video_path, thumbnail_path):
+    cap = cv2.VideoCapture(video_path)
+
+    # Get the video duration in ms
+    total_duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS) * 1000
+    
+    # Pick a time to extract a frame from the video
+    time = total_duration / 4   # 1/4 into the video
+
+    # Set the position of the frame to capture (in ms)
+    cap.set(cv2.CAP_PROP_POS_MSEC, time)
+
+    success, frame = cap.read()
+
+    if success:
+        cv2.imwrite(thumbnail_path, frame)
+    else:
+        raise ThumbnailCreationException()
+
+    # Release the video capture
+    cap.release()
 
 
 if __name__ == "__main__":

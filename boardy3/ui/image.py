@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
 from boardy3.database.database_manager import DatabaseManager
 from boardy3.database.models import Tag
 from boardy3.ui.tag import TagsWindow
+from boardy3.ui.video_player import VideoPlayerWidget
 
 
 class ImageWidget(QLabel):
@@ -43,7 +44,12 @@ class ImageWidget(QLabel):
         self.image_ = self.db_manager.get_image(self.db_id)
         if self.image_ is None:
             raise ValueError(f"Invalid image id: {self.db_id}.")
-        self.image_path = self.db_manager.get_image_path(self.image_.filename)
+        
+        # If the db image is actually a video, use the video thubmnail instead
+        if self.image_.is_video is True:
+            self.image_path = self.db_manager.get_thumbnail_path(self.image_.filename)
+        else:
+            self.image_path = self.db_manager.get_image_path(self.image_.filename)
 
         _pixmap = QPixmap(self.image_path)
         _w = width if width else _pixmap.width()
@@ -76,11 +82,18 @@ class ImageWidget(QLabel):
 
     def delete_image(self) -> None:
         self.db_manager.delete_image(self.db_id)
-        # self.deleted.emit()
     
 
     def on_delete(self):
         self.deleted.emit()
+
+
+    def get_width(self) -> int:
+        return self.pixmap().width()
+    
+
+    def get_height(self) -> int:
+        return self.pixmap().height()
 
 
 class ImageWindow(QMainWindow):
@@ -98,15 +111,28 @@ class ImageWindow(QMainWindow):
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
-        # Display image
+        # Display image/video
         self.image_widget = ImageWidget(db_id, 800, 800, detached=True)
+        assert(self.image_widget.image_ is not None)
+        # Check if image widget is actually a video
+        if self.image_widget.image_.is_video is True:
+            self.image_widget.deleteLater()
+            self.image_widget = VideoPlayerWidget(db_id, 800, 800)
 
-        if self.image_widget.pixmap().width() > self.image_widget.pixmap().height():
+        # if isinstance(self.image_widget, ImageWidget):
+        if self.image_widget.get_width() > self.image_widget.get_height():
             portrait = False
             self.layout_ = QVBoxLayout()
         else:
             portrait = True
             self.layout_ = QHBoxLayout()
+        # elif isinstance(self.image_widget, VideoPlayerWidget):
+        #     if self.image_widget.video_container.width() > self.image_widget.video_container.height():
+        #         portrait = False
+        #         self.layout_ = QVBoxLayout()
+        #     else:
+        #         portrait = True
+        #         self.layout_ = QHBoxLayout()
 
         # Create a panel to contain tags
         self.tags_panel = TagsWindow(self.image_widget.db_id, portrait=portrait)
@@ -129,13 +155,13 @@ class ImageWindow(QMainWindow):
         match self.layout_:
             case QVBoxLayout():
                 self.setFixedSize(
-                    self.image_widget.pixmap().width()+1,
-                    self.image_widget.pixmap().height() + self.tags_panel.height() + 50
+                    self.image_widget.get_width()+1,
+                    self.image_widget.get_height() + self.tags_panel.height() + 50
                 )
             case QHBoxLayout():
                 self.setFixedSize(
-                    self.image_widget.pixmap().width() + self.tags_panel.width() + 50,
-                    self.image_widget.pixmap().height()+1
+                    self.image_widget.get_width() + self.tags_panel.width() + 50,
+                    self.image_widget.get_height()+1
                 )
 
         self.central_widget.setLayout(self.layout_)
@@ -173,6 +199,8 @@ class ImageUrlInputDialog(QDialog):
 
         self.setWindowTitle("Enter Urls")
         # self.setGeometry(200, 200, 300, 150)
+
+        self.image_urls = list()
 
         self.input_box = QPlainTextEdit()
 

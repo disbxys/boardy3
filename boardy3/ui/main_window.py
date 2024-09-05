@@ -2,7 +2,7 @@ import os
 from typing import Sequence
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction, QCloseEvent
+from PyQt6.QtGui import QAction, QAction, QCloseEvent, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         self.scroll_widget = QWidget(self.scroll_area)
         self.images_layout = FlowLayout(self.scroll_widget)
 
+        # 
         self._create_actions()
         self._create_menu_bar()
 

@@ -1,5 +1,5 @@
 from typing import TypeAlias
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import declarative_base, relationship
 
 
@@ -18,6 +18,7 @@ class Image(Base):
     __tablename__ = "image"
     id = Column(Integer, primary_key=True)
     filename = Column(String(255), unique=True, nullable=False)
+    is_video = Column(Boolean, nullable=False, default=False)
 
     # Define the many-to-many relationship with Tag
     tags = relationship("Tag", secondary=image_tag, backref="images")
