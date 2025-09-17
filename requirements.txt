@@ -19,4 +19,4 @@ requests==2.32.2
 requests-ratelimiter==0.6.0
 SQLAlchemy==2.0.25
 typing_extensions==4.9.0
-urllib3==2.2.2
+urllib3==2.5.0
